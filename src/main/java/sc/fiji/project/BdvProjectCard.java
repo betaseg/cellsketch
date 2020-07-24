@@ -74,11 +74,6 @@ public class BdvProjectCard extends JPanel {
 		actionsColumn.setCellRenderer(new ActionsButtonRenderer());
 		table.getTableHeader().setVisible(false);
 		table.setRowHeight(22);
-		for (int i = 0; i < model.getItems().size(); i++) {
-			if(ItemGroup.class.isAssignableFrom(model.getItems().get(i).getClass())) {
-				table.setRowHeight(i, 40);
-			}
-		}
 		table.setRowMargin(2);
 		return table;
 	}
@@ -269,7 +264,6 @@ public class BdvProjectCard extends JPanel {
 			return super.stopCellEditing();
 		}
 	}
-
 
 	class ActionsButtonEditor extends AbstractCellEditor
 			implements TableCellEditor {
