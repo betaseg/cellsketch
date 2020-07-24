@@ -1,20 +1,18 @@
 title: null
-Source: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/sections-180-220.tif,
-  axes: XYZ}
+Source: {path: sections-180-220.tif, axes: XYZ}
 Mitochondria:
-  Mitochondria labels: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/mitochondria.tif,
-    axes: XYZ}
-  Mitochondria stats: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/mitochondria_stats.csv}
+  Mitochondria labels: {path: mitochondria.tif, axes: XYZ}
+  Mitochondria stats: {path: mitochondria_stats.csv}
   Mitochondria size: {referenceLabeling: Mitochondria labels, referenceTable: Mitochondria
       stats, referenceColumn: 0}
 Synapses:
-  Synapses labels: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/synapses.tif,
+  Synapses labels: {path: synapses.tif,
     axes: XYZ}
-  Synapses stats: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/synapses_stats.csv}
+  Synapses stats: {path: synapses_stats.csv}
   Synapses size: {referenceLabeling: Synapses labels, referenceTable: Synapses stats,
     referenceColumn: 0}
 Unsorted:
-  Membranes, neurites, glia: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/membranes-neurites-glia.tif,
+  Membranes, neurites, glia: {path: membranes-neurites-glia.tif,
     axes: XYZ}
-  Noise: {path: /home/random/Development/imagej/fiji/fiji-project/src/test/resources/example-project/noise.tif,
+  Noise: {path: noise.tif,
     axes: XYZ}

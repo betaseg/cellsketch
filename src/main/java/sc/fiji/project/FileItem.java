@@ -7,6 +7,8 @@ import sc.fiji.project.command.ImportFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Map;
@@ -71,12 +73,17 @@ public class FileItem extends AbstractItem {
 
 	@Override
 	public void loadConfigFrom(Map<String, Object> data) {
-		if(data.containsKey("path")) file = new File((String) data.get("path"));
+		if(data.containsKey("path")) file = new File(project().getProjectDir(), (String) data.get("path"));
 	}
 
 	@Override
 	public void saveConfigTo(Map<String, Object> data) {
-		if(file != null) data.put("path", file.getPath());
+		if(file != null) {
+			Path pathBase = project().getProjectDir().toPath();
+			Path pathAbsolute = file.toPath();
+			Path pathRelative = pathBase.normalize().relativize(pathAbsolute);
+			data.put("path", pathRelative.toString());
+		}
 	}
 
 	public String getFileName() {
