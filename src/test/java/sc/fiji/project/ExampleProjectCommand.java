@@ -12,7 +12,7 @@ import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.table.GenericTable;
+import org.scijava.table.Table;
 import org.scijava.ui.UIService;
 import org.scijava.widget.FileWidget;
 
@@ -97,7 +97,7 @@ public class ExampleProjectCommand implements Command {
 	private void setupMitochondria() {
 		mitochondriaLabelsItem = new LabelMapFileItem(project, "Mitochondria labels");
 		mitochondriaStatsItem = new TableFileItem(project, "Mitochondria stats", new MitochondriaTable());
-		mitochondriaSizeItem = new LabelTagItem(project, "Mitochondria size", mitochondriaLabelsItem, mitochondriaStatsItem, MitochondriaTable.getSizeColumn());
+		mitochondriaSizeItem = mitochondriaLabelsItem.addLabel("Mitochondria size", mitochondriaStatsItem, MitochondriaTable.getSizeColumn(), Double.class);
 		mitochondriaGroup = new DefaultItemGroup("Mitochondria");
 		mitochondriaGroup.getItems().add(mitochondriaLabelsItem);
 		mitochondriaGroup.getItems().add(mitochondriaStatsItem);
@@ -107,7 +107,7 @@ public class ExampleProjectCommand implements Command {
 	private void setupSynapses() {
 		synapsesLabelsItem = new LabelMapFileItem(project, "Synapses labels");
 		synapsesStatsItem = new TableFileItem(project, "Synapses stats", new SynapsesTable());
-		synapsesSizeItem = new LabelTagItem(project, "Synapses size", synapsesLabelsItem, synapsesStatsItem, SynapsesTable.getSizeColumn());
+		synapsesSizeItem = synapsesLabelsItem.addLabel("Synapses size", synapsesStatsItem, SynapsesTable.getSizeColumn(), Double.class);
 		synapsesGroup = new DefaultItemGroup("Synapses");
 		synapsesGroup.getItems().add(synapsesLabelsItem);
 		synapsesGroup.getItems().add(synapsesStatsItem);
@@ -154,7 +154,7 @@ public class ExampleProjectCommand implements Command {
 	private void calculateMitochondriaStats() {
 		ImgLabeling<IntType, ? extends IntegerType<?>> labeling = mitochondriaLabelsItem.getModel().labeling();
 		LabelRegions<IntType> regions = new LabelRegions<>(labeling);
-		GenericTable table = mitochondriaStatsItem.getTable();
+		Table table = mitochondriaStatsItem.getTable();
 		if(table == null) table = SpecificTableBuilder.build(new MitochondriaTable());
 		for (LabelRegion<IntType> region : regions) {
 			table.appendRow(region.getLabel().toString());
@@ -174,7 +174,7 @@ public class ExampleProjectCommand implements Command {
 	private void calculateSynapsesStats() {
 		ImgLabeling<IntType, ? extends IntegerType<?>> labeling = synapsesLabelsItem.getModel().labeling();
 		LabelRegions<IntType> regions = new LabelRegions<>(labeling);
-		GenericTable table = synapsesStatsItem.getTable();
+		Table table = synapsesStatsItem.getTable();
 		if(table == null) table = SpecificTableBuilder.build(new SynapsesTable());
 		for (LabelRegion<IntType> region : regions) {
 			table.appendRow(region.getLabel().toString());

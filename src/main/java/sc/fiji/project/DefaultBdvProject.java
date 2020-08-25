@@ -83,7 +83,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		makeFrame();
 	}
 
-	private void loadProject() throws IOException {
+	public void loadProject() throws IOException {
 		File projectFile = new File(projectDir, projectFileName);
 		System.out.println("project file: " + projectFile.getAbsolutePath());
 
@@ -100,8 +100,9 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 
 	private void makeFrame() {
 		JFrame frame = new JFrame();
-		bdvHandlePanel = new BdvHandlePanel(frame, new BdvOptions());
-		labelEditorInterface = new BdvInterface(bdvHandlePanel.getBdvHandle(), context);
+		labelEditorInterface = new BdvInterface(context);
+		bdvHandlePanel = new BdvHandlePanel(frame, new BdvOptions().accumulateProjectorFactory(labelEditorInterface.projector()));
+		labelEditorInterface.setup(bdvHandlePanel);
 		card = new BdvProjectCard();
 		getItems().forEach(item -> card.addItem(item));
 		card.build(title);
@@ -130,7 +131,9 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		System.out.println(data);
 
 		Yaml yaml = new Yaml();
-		FileWriter writer = new FileWriter(new File(projectDir, projectFileName));
+		File file = new File(projectDir, projectFileName);
+		if(!file.exists()) file.createNewFile();
+		FileWriter writer = new FileWriter(file);
 		yaml.dump(data, writer);
 	}
 
@@ -151,7 +154,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 
 	@Override
 	public void updateUI() {
-		SwingUtilities.invokeLater(card.getItemsModel()::fireTableDataChanged);
+		if(card != null) SwingUtilities.invokeLater(card.getItemsModel()::fireTableDataChanged);
 	}
 
 	@Override
@@ -164,4 +167,8 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		return editable;
 	}
 
+	@Override
+	public void dispose() {
+		if(bdvHandlePanel != null) bdvHandlePanel.close();
+	}
 }

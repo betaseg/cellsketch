@@ -38,4 +38,8 @@ public abstract class AbstractItem implements Item {
 	public void setColor(int color) {
 		this.color = color;
 	}
+
+	public String nameToFileName() {
+		return getName().replace(" ", "_").toLowerCase();
+	}
 }

@@ -73,6 +73,7 @@ public class FileItem extends AbstractItem {
 
 	@Override
 	public void loadConfigFrom(Map<String, Object> data) {
+//		System.out.println(getName() + " " + data);
 		if(data.containsKey("path")) file = new File(project().getProjectDir(), (String) data.get("path"));
 	}
 
@@ -93,10 +94,6 @@ public class FileItem extends AbstractItem {
 
 	public String getDefaultFileName() {
 		return nameToFileName() + "." + getFileType();
-	}
-
-	public String nameToFileName() {
-		return getName().replace(" ", "_").toLowerCase();
 	}
 
 	public File getFile() {

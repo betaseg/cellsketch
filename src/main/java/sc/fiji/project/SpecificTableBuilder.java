@@ -2,6 +2,7 @@ package sc.fiji.project;
 
 import org.scijava.table.DefaultGenericTable;
 import org.scijava.table.GenericTable;
+import org.scijava.table.Table;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ public class SpecificTableBuilder {
 		columnDefinition.getColumns().forEach(table::appendColumn);
 		return table;
 	}
-	public static <T extends TableColumnDefinition> GenericTable build(T columnDefinition, GenericTable table) {
+	public static <T extends TableColumnDefinition> Table build(T columnDefinition, Table table) {
 		GenericTable newtable = new DefaultGenericTable();
 		List<String> columns = new ArrayList<>(columnDefinition.getColumns());
 		for (int i = 0; i < table.getColumnCount(); i++) {

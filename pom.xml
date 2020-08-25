@@ -5,17 +5,17 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>28.0.0</version>
+		<version>29.2.1</version>
 		<relativePath />
 	</parent>
 
-	<groupId>sc.fiji</groupId>
-	<artifactId>fiji-project</artifactId>
+	<groupId>de.csbdresden</groupId>
+	<artifactId>betaseg</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
-	<name>Fiji project</name>
-	<description>Fiji project</description>
-	<url>http://fiji.sc/</url>
+	<name>betaseg</name>
+	<description>betaseg</description>
+	<url>http://csbdresden.de/</url>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
 		<name>Center for System Biology Dresden</name>
@@ -59,18 +59,18 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/juglab/fiji-project</connection>
-		<developerConnection>scm:git:git@github.com/juglab/fiji-project</developerConnection>
+		<connection>scm:git:git://github.com/juglab/betaseg</connection>
+		<developerConnection>scm:git:git@github.com/juglab/betaseg</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/juglab/fiji-project</url>
+		<url>https://github.com/juglab/betaseg</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/juglab/fiji-project/issues</url>
+		<url>https://github.com/juglab/betaseg/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.com/juglab/fiji-project</url>
+		<url>https://travis-ci.com/juglab/betaseg</url>
 	</ciManagement>
 
 	<properties>
@@ -80,6 +80,7 @@
 		<license.copyrightOwners>
 			Deborah Schmidt
 		</license.copyrightOwners>
+		<bigdataviewer-vistools.version>1.0.0-beta-21</bigdataviewer-vistools.version>
 	</properties>
 
 	<repositories>
@@ -95,13 +96,17 @@
 			<artifactId>imagej</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-legacy</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-plugins-io-table</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>labeleditor</artifactId>
-			<version>0.9.0</version>
+			<version>0.9.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -110,6 +115,11 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-vistools</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20200518</version>
 		</dependency>
 		<!-- test dependencies -->
 		<dependency>
