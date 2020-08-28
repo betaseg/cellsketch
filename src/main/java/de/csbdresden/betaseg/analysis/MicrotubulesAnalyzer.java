@@ -8,6 +8,9 @@ import net.imagej.ops.OpService;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.RealPoint;
+import net.imglib2.algorithm.math.ImgMath;
+import net.imglib2.algorithm.math.Mul;
 import net.imglib2.cache.img.DiskCachedCellImgFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
@@ -93,27 +96,39 @@ public class MicrotubulesAnalyzer {
 		Table detailsTable = SpecificTableBuilder.build(new MicrotubulesTable());
 		data.getMicrotubulesIndividualStatsItem().setTable(detailsTable);
 		writeTables(detailsTable, summaryTable, mts);
-		int centriolesColumn1 = MicrotubulesTable.getDistanceEnd1CentriolesColumn();
-		int centriolesColumn2 = MicrotubulesTable.getDistanceEnd2CentriolesColumn();
-		int centriolesConnectedColumn = MicrotubulesTable.getConnectedToCentriolesColumn();
-		float connectedToCentriolesThreshold = connectedToCentriolesThresholdInMicroMeter;
-		calculateDistanceConnected(detailsTable, centriolesColumn1, centriolesColumn2, centriolesConnectedColumn, mts, data.getCentriolesDistanceTransformItem().getImage(), connectedToCentriolesThreshold);
-		int membraneColumn1 = MicrotubulesTable.getDistanceEnd1MembraneColumn();
-		int membraneColumn2 = MicrotubulesTable.getDistanceEnd2MembraneColumn();
-		calculateDistance(detailsTable, membraneColumn1, membraneColumn2, mts, data.getMembraneDistanceMapItem().getImage());
+		calculateCentriolesRelationship(data, mts, detailsTable);
+		calculateMembraneRelationship(data, mts, detailsTable);
 		if(data.getGolgiDistanceTransformItem().exists()) {
-			int golgiColumn1 = MicrotubulesTable.getDistanceEnd1GolgiColumn();
-			int golgiColumn2 = MicrotubulesTable.getDistanceEnd2GolgiColumn();
-			int golgiConnectedColumn = MicrotubulesTable.getConnectedToGolgiColumn();
-			float connectedToGolgiThreshold = connectedToGolgiThresholdInMicroMeter;
-			calculateDistanceConnected(detailsTable, golgiColumn1, golgiColumn2, golgiConnectedColumn, mts, data.getGolgiDistanceTransformItem().getImage(), connectedToGolgiThreshold);
-			calculateConnectedToCentriolesPercentages();
-			calculateConnectedToGolgiPercentages();
+			calculateGolgiRelationship(data, mts, detailsTable);
 		}
 		data.getMicrotubulesStatsItem().setFile(sumTableFile);
 		data.getMicrotubulesStatsItem().save();
 		data.getMicrotubulesIndividualStatsItem().setFile(individualTableFile);
 		data.getMicrotubulesIndividualStatsItem().save();
+	}
+
+	private void calculateGolgiRelationship(BetaSegData data, List<List<Point>> mts, Table detailsTable) {
+		int golgiColumn1 = MicrotubulesTable.getDistanceEnd1GolgiColumn();
+		int golgiColumn2 = MicrotubulesTable.getDistanceEnd2GolgiColumn();
+		int golgiConnectedColumn = MicrotubulesTable.getConnectedToGolgiColumn();
+		float connectedToGolgiThreshold = connectedToGolgiThresholdInMicroMeter;
+		calculateDistanceConnected(detailsTable, golgiColumn1, golgiColumn2, golgiConnectedColumn, mts, data.getGolgiDistanceTransformItem().getImage(), connectedToGolgiThreshold);
+		calculateConnectedToGolgiPercentages();
+	}
+
+	private void calculateMembraneRelationship(BetaSegData data, List<List<Point>> mts, Table detailsTable) {
+		int membraneColumn1 = MicrotubulesTable.getDistanceEnd1MembraneColumn();
+		int membraneColumn2 = MicrotubulesTable.getDistanceEnd2MembraneColumn();
+		calculateDistance(detailsTable, membraneColumn1, membraneColumn2, mts, data.getMembraneDistanceMapItem().getImage());
+	}
+
+	private void calculateCentriolesRelationship(BetaSegData data, List<List<Point>> mts, Table detailsTable) {
+		int centriolesColumn1 = MicrotubulesTable.getDistanceEnd1CentriolesColumn();
+		int centriolesColumn2 = MicrotubulesTable.getDistanceEnd2CentriolesColumn();
+		int centriolesConnectedColumn = MicrotubulesTable.getConnectedToCentriolesColumn();
+		float connectedToCentriolesThreshold = connectedToCentriolesThresholdInMicroMeter;
+		calculateDistanceConnected(detailsTable, centriolesColumn1, centriolesColumn2, centriolesConnectedColumn, mts, data.getCentriolesDistanceTransformItem().getImage(), connectedToCentriolesThreshold);
+		calculateConnectedToCentriolesPercentages();
 	}
 
 	private void calculateConnectedToGolgiPercentages() {
@@ -166,14 +181,41 @@ public class MicrotubulesAnalyzer {
 				table.appendRow(rowHeader);
 			}
 			double length = 0;
+			List<RealPoint> subsampled_mt = new ArrayList<>();
 			Point first = microtubule.get(0);
 			for (int j = 1; j < microtubule.size(); j++) {
 				Point next = microtubule.get(j);
-				length += toMicroMeters(distance(first, next), pixelToMicroMeters);
+				double length_line = distance(first, next);
+				length += toMicroMeters(length_line, pixelToMicroMeters);
+				subsampled_mt.add(new RealPoint(next.getDoublePosition(0), next.getDoublePosition(1), next.getDoublePosition(2)));
 				first = next;
 			}
+			double tortuosity = 0;
+			double sum_length = 0;
+			Point a = microtubule.get(0);
+			Point b = microtubule.get(1);
+			double length_line = distance(a, b) * pixelToMicroMeters;
+//			int start = 0;
+			for (int j = 1; j < microtubule.size()-1; j++) {
+				Point c = microtubule.get(j+1);
+				length_line += distance(b, c) * pixelToMicroMeters;
+				if(length_line > 1 || j == microtubule.size()-2) {
+//					System.out.println(start + " -> " + j);
+					double linetortuosity = getTortuosity(length_line, a, c, pixelToMicroMeters);
+					tortuosity += linetortuosity * length_line;
+					sum_length += length_line;
+					length_line = distance(b, c) * pixelToMicroMeters;
+					a = b;
+//					start = j;
+				}
+				b = c;
+			}
+			if(sum_length > 0) {
+				tortuosity /= sum_length;
+			} else {
+				tortuosity = 1;
+			}
 			lengths[i] = length;
-			double tortuosity = getTortuosity(length, microtubule.get(0), microtubule.get(microtubule.size() - 1), pixelToMicroMeters);
 			tortuosities[i] = tortuosity;
 			table.set(MicrotubulesTable.getLengthColumn(), rowIndex, String.valueOf(length));
 			table.set(MicrotubulesTable.getTortuosityColumn(), rowIndex, String.valueOf(tortuosity));
@@ -189,6 +231,79 @@ public class MicrotubulesAnalyzer {
 		summaryTable.set(MicrotubulesOverviewTable.getStdevTortuosityColumn(), 0, String.valueOf(new StandardDeviation().evaluate(tortuosities)));
 		summaryTable.set(MicrotubulesOverviewTable.getMedianTortuosityColumn(), 0, String.valueOf(new Median().evaluate(tortuosities)));
 		System.out.println(summaryTable);
+	}
+
+	private double getCurvature(List<RealPoint> points) {
+		if(points.size() < 3) return 0;
+		double[] radii = new double[points.size()-2];
+		for (int i = 0; i < points.size()-2; i++) {
+			RealPoint pt1 = points.get(i);
+			RealPoint pt2 = points.get(i+1);
+			RealPoint pt3 = points.get(i+2);
+			RealPoint n = cross(sub(pt2, pt1), sub(pt3, pt2));
+			RealPoint p0 = mul(0.5, sum(pt1, pt2));
+			RealPoint p1 = mul(0.5, sum(pt2, pt3));
+			RealPoint dp0 = cross(sub(pt2, pt1), n);
+			RealPoint dp1 = cross(sub(pt3, pt2), n);
+//			pnt0(t)=p0+dp0*t
+//			pnt1(u)=p1+dp1*u
+//			a = |(P2-P1) X V2| / |V1 X V2|
+			double a = magnitude(cross(sub(p1, p0), dp1)) / magnitude(cross(dp0, dp1));
+			RealPoint pt0 = sum(p0, mul(a, dp0));
+			double r = magnitude(sub(pt1, pt0));
+			if(Double.isNaN(r)) r = Double.MAX_VALUE;
+			radii[i] = 50-Math.min(r, 50);
+		}
+		return new Mean().evaluate(radii);
+	}
+
+	private RealPoint mul(double factor, RealPoint p1) {
+		RealPoint res = new RealPoint(p1.numDimensions());
+		for (int i = 0; i < p1.numDimensions(); i++) {
+			res.setPosition(p1.getDoublePosition(i) * factor, i);
+		}
+		return res;
+	}
+
+	private RealPoint sum(RealPoint p1, RealPoint p2) {
+		RealPoint res = new RealPoint(p1.numDimensions());
+		for (int i = 0; i < p1.numDimensions(); i++) {
+			res.setPosition(p1.getDoublePosition(i) + p2.getDoublePosition(i), i);
+		}
+		return res;
+	}
+
+	private RealPoint sub(RealPoint p1, RealPoint p2) {
+		RealPoint res = new RealPoint(p1.numDimensions());
+		for (int i = 0; i < p1.numDimensions(); i++) {
+			res.setPosition(p1.getDoublePosition(i) - p2.getDoublePosition(i), i);
+		}
+		return res;
+	}
+
+	private RealPoint cross(RealPoint p1, RealPoint p2) {
+		return new RealPoint(
+				p1.getDoublePosition(1) * p2.getDoublePosition(2) - p1.getDoublePosition(2) * p2.getDoublePosition(1),
+				p1.getDoublePosition(2) * p2.getDoublePosition(0) - p1.getDoublePosition(0) * p2.getDoublePosition(2),
+				p1.getDoublePosition(0) * p2.getDoublePosition(1) - p1.getDoublePosition(1) * p2.getDoublePosition(0)
+		);
+	}
+
+	private double magnitude(RealPoint p1) {
+		double sum = 0;
+		for (int i = 0; i < p1.numDimensions(); i++) {
+			sum += Math.pow(p1.getDoublePosition(i), 2.);
+		}
+		return Math.sqrt(sum);
+	}
+
+	private RealPoint sample(Point a, Point b, double ratio) {
+		RealPoint aToB = new RealPoint(b.getFloatPosition(0) - a.getFloatPosition(0),
+				b.getFloatPosition(1) - a.getFloatPosition(1),
+				b.getFloatPosition(2) - a.getFloatPosition(2));
+		return new RealPoint(a.getFloatPosition(0) + aToB.getFloatPosition(0) * ratio,
+				a.getFloatPosition(1) + aToB.getFloatPosition(1) * ratio,
+				a.getFloatPosition(2) + aToB.getFloatPosition(2) * ratio);
 	}
 
 	private void render(File outputYAML, File outputIndexImg, File outputDistanceMapImg) throws IOException {
@@ -443,7 +558,7 @@ public class MicrotubulesAnalyzer {
 	private static double getTortuosity(double lengthInMicroMeters, Point start, Point end, double pixelToMicroMeters) {
 		double distance = distance(start, end);
 		double distanceInMicroMeters = toMicroMeters(distance, pixelToMicroMeters);
-		return 1 - (distanceInMicroMeters / lengthInMicroMeters);
+		return lengthInMicroMeters / distanceInMicroMeters;
 	}
 
 	private static double toMicroMeters(double value, double scale) {
