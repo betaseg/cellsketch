@@ -8,22 +8,20 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
 import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.Type;
-import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.DoubleType;
 import org.scijava.io.IOService;
-import sc.fiji.labeleditor.core.model.colors.LabelEditorColor;
+import org.scijava.ui.UIService;
 import sc.fiji.labeleditor.core.model.colors.LabelEditorValueColor;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 
@@ -45,6 +43,19 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 		this.referenceTable = referenceTable;
 		this.referenceColumn = referenceColumn;
 		this.tagClass = tagClass;
+		if(!tagClass.isAssignableFrom(Boolean.class)) {
+			getActions().add(new DefaultAction(
+					"Plot property",
+					Collections.singletonList(this),
+					this::plot
+			));
+		} else {
+			getActions().add(new DefaultAction(
+					"Export mask",
+					Collections.singletonList(this),
+					this::exportMask
+			));
+		}
 		if(referenceLabelMap.project().isEditable()) {
 			PlyExporter plyExporter = new PlyExporter(referenceLabelMap.project().context().service(OpService.class), referenceLabelMap);
 			getActions().add(new DefaultAction(
@@ -59,6 +70,32 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 					}
 			));
 		}
+	}
+
+	private void exportMask() {
+		List labels = referenceLabelMap.getModel().tagging().getLabels(tag);
+		Converter<LabelingType, ByteType> converter = (input, output) -> {
+			if(input.size() > 0 && labels.contains(input.iterator().next())) output.setOne();
+			else output.setZero();
+		};
+		RandomAccessibleInterval<ByteType> mask = Converters.convert(
+				(RandomAccessibleInterval<LabelingType>) referenceLabelMap.getModel().labeling(),
+				converter,
+				new ByteType());
+		String name = referenceLabelMap.project().getName() + " - " + referenceLabelMap.getName() + " - " + tag;
+		referenceLabelMap.project().context().service(UIService.class).show(name, mask);
+	}
+
+	private void plot() {
+		int column = referenceColumn;
+		tag = getName();
+		String series = referenceLabelMap.project().getName();
+		String title = series + ": " + tag;
+		String xLabel = tag;
+		String yLabel = "";
+		int bins = 20;
+		double[] data = PlotUtil.toDoubleArray(referenceTable.getTable().get(referenceColumn));
+		PlotUtil.displayHistogram(data, series, title, xLabel, yLabel, bins);
 	}
 
 	private RandomAccessibleInterval getTagMask() throws IOException {
@@ -84,7 +121,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	}
 
 	public RandomAccessibleInterval<ByteType> hasTag() {
-		Set labels = referenceLabelMap.getModel().tagging().getLabels(tag);
+		List labels = referenceLabelMap.getModel().tagging().getLabels(tag);
 		Converter<LabelingType, ByteType> converter = (input, output) -> {
 			if(input.size() > 0 && labels.contains(input.iterator().next())) output.setOne();
 			else output.setZero();
@@ -96,6 +133,9 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	public void addToBdv() {
 //		InteractiveTableDisplayViewer viewer = new InteractiveTableDisplayViewer(new BdvAppTable(referenceLabelMap.getModel(), referenceTable.getTable()));
 //		viewer.display();
+		if(!referenceLabelMap.isVisible()) {
+			referenceLabelMap.addToBdv();
+		}
 		setVisible(true);
 		updateBdvColor();
 	}

@@ -121,6 +121,10 @@
 			<artifactId>json</artifactId>
 			<version>20200518</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+		</dependency>
 		<!-- test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
