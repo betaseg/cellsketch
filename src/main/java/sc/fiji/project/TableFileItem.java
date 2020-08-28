@@ -1,6 +1,5 @@
 package sc.fiji.project;
 
-import org.scijava.table.GenericTable;
 import org.scijava.table.Table;
 import org.scijava.table.io.TableIOOptions;
 import org.scijava.table.io.TableIOService;
@@ -60,6 +59,7 @@ public class TableFileItem extends FileItem {
 		if(getFile() == null) {
 			setFile(new File(project().getProjectDir(), getDefaultFileName()));
 		}
+		getFile().delete();
 		tableIOService.save(getTable(), getFile().getAbsolutePath(), TableIOOptions.options().writeColumnHeaders(true).writeRowHeaders(true));
 		return true;
 	}
