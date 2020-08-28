@@ -102,8 +102,8 @@ public class BetaSegViewer implements Command {
 		data.getGolgiMaskItem().setColor(ARGBType.rgba(50, 180, 137, 150));
 		data.getGolgiDistanceTransformItem().setColor(ARGBType.rgba(90, 220, 177, 150));
 
-		data.getConnectedMTCentriolesItem().setColor(ARGBType.rgba(255, 0, 214, 200));
-		data.getConnectedMTGolgiItem().setColor(ARGBType.rgba(255, 0, 0, 200));
+		data.getConnectedMTCentriolesItem().setColor(ARGBType.rgba(255, 153, 0, 255));
+		data.getConnectedMTGolgiItem().setColor(ARGBType.rgba(255, 255, 0, 255));
 	}
 
 	private void loadData() {
