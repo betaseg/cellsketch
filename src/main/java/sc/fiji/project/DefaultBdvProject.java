@@ -168,6 +168,11 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 	}
 
 	@Override
+	public String getName() {
+		return title;
+	}
+
+	@Override
 	public void dispose() {
 		if(bdvHandlePanel != null) bdvHandlePanel.close();
 	}
