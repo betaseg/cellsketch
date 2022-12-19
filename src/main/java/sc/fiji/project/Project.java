@@ -4,6 +4,7 @@ import org.scijava.Context;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public interface Project extends ItemGroup {
 
@@ -36,4 +37,8 @@ public interface Project extends ItemGroup {
 
 	boolean isEditable();
 	void setEditable(boolean editable);
+
+    void create(File input, ImageFileItem sourceItem);
+
+    void addFile(Path file, String fileName) throws IOException;
 }

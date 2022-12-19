@@ -1,40 +1,40 @@
 package sc.fiji.project;
 
-import de.csbdresden.betaseg.analysis.AnalyzeUtils;
-import de.csbdresden.betaseg.export.PlyExporter;
+import sc.fiji.project.export.PlyExporter;
 import net.imagej.DatasetService;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converters;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.view.Views;
+import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.scijava.io.IOService;
 import sc.fiji.labeleditor.core.controller.DefaultInteractiveLabeling;
 import sc.fiji.labeleditor.core.model.DefaultLabelEditorModel;
 import sc.fiji.labeleditor.core.model.LabelEditorModel;
-import sc.fiji.labeleditor.core.view.DefaultLabelEditorView;
-import sc.fiji.labeleditor.core.view.LabelEditorView;
-import sc.fiji.labeleditor.plugin.renderers.DefaultLabelEditorRenderer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T> {
 
-	private LabelEditorView<IntType> view;
 	private LabelEditorModel<IntType> model;
 	private DefaultInteractiveLabeling<IntType> labeling;
 	private final List<LabelTagItem> tagItems = new ArrayList<>();
 
-	public LabelMapFileItem(BdvProject app, String name) {
-		super(app, name);
+	public LabelMapFileItem(BdvProject app, String name, String defaultName) {
+		super(app, name, defaultName);
 		if(project().isEditable()) {
 			PlyExporter plyExporter = new PlyExporter(project().context().service(OpService.class), this);
 			getActions().add(new DefaultAction(
 					"Export as PLY",
-					Arrays.asList(this),
+					Collections.singletonList(this),
 					() -> {
 						try {
 							plyExporter.export(getExportDir(), getExportName(), getTagMask());
@@ -46,6 +46,15 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 		}
 	}
 
+	@Override
+	public boolean importAsFile(File file) throws IOException {
+		if(file == null) return false;
+		project().addImageFile(file.toPath(), getDefaultFileName(), "int");
+		setFile(new File(getDefaultFileName()));
+		project().updateUI();
+		return true;
+	}
+
 	private RandomAccessibleInterval getTagMask() throws IOException {
 		File exportMask = new File(getExportDir(), getExportName() + ".tif");
 		IOService io = project().context().service(IOService.class);
@@ -53,7 +62,7 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 		if(exportMask.exists()) {
 			return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
 		} else {
-			RandomAccessibleInterval tagMask = AnalyzeUtils.asMask(getImage());
+			RandomAccessibleInterval tagMask = asMask(getImage());
 			exportMask.getParentFile().mkdirs();
 			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
 		}
@@ -68,18 +77,29 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 		return new File(project().getProjectDir(), "export");
 	}
 
+
 	@Override
 	public void addToBdv() {
 		if(isVisible()) return;
-		view = new DefaultLabelEditorView<>(getModel());
-		if(project().context() != null) project().context().inject(view);
-		view.addDefaultRenderers();
-//		view.add(new DefaultLabelEditorRenderer<>());
-		getModel().setName(getName());
-		labeling = project().labelEditorInterface().control(getModel(), view);
-		updateBdvColor();
-		setVisible(true);
-		project().updateUI();
+		System.out.println("add labelmap to bdv: " + getName());
+		String defaultFileName = this.getDefaultFileName();
+		if(defaultFileName == null) return;
+		DataSelection dataSelection = project().getDataSelection(getDefaultFileName());
+		if(dataSelection != null) {
+			try {
+				load();
+				LabelEditorModel<IntType> model = getModel();
+				model.setName(getName());
+				labeling = project().labelEditorInterface().control(model);
+				project().projectData().put(defaultFileName, labeling);
+				this.setSources(null);
+				setVisible(true);
+				updateBdvColor();
+				project().updateUI();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -98,7 +118,8 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 
 	public LabelEditorModel<IntType> getModel() {
 		if(model == null && getImage() != null) {
-			model = DefaultLabelEditorModel.initFromLabelMap(getImage());
+			ImgLabeling<IntType, IntType> labels = makeLabeling(getImage());
+			model = new DefaultLabelEditorModel<>(labels);
 			for (LabelTagItem tagItem : tagItems) {
 				tagItem.addTag();
 			}
@@ -106,9 +127,37 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 		return model;
 	}
 
+	private ImgLabeling<IntType, IntType> makeLabeling(RandomAccessibleInterval labelMap) {
+		final ImgLabeling< IntType, IntType > labeling = new ImgLabeling( labelMap );
+		RealType max = project().context().service(OpService.class).stats().max(Views.iterable(labelMap));
+		final ArrayList<Set<IntType>> labelSets = new ArrayList<>();
+
+		labelSets.add( new HashSet<>() ); // empty 0 label
+		for (int label = 1; label <= max.getRealDouble(); ++label) {
+			final HashSet< IntType > set = new HashSet< >();
+			set.add( new IntType(label) );
+			labelSets.add( set );
+		}
+
+		new LabelingMapping.SerialisationAccess<IntType>(labeling.getMapping()) {
+			{
+				super.setLabelSets(labelSets);
+			}
+		};
+
+		return labeling;
+	}
+
 	public LabelTagItem addLabel(String title, TableFileItem referenceTable, int column, Class columnClass) {
 		LabelTagItem labelTagItem = new LabelTagItem(title, this, referenceTable, column, columnClass);
 		tagItems.add(labelTagItem);
 		return labelTagItem;
+	}
+
+	public static <T extends IntegerType<T>> RandomAccessibleInterval<ByteType> asMask(RandomAccessibleInterval<T> image) {
+		return Converters.convert(image, (in, out) -> {
+			if(in.getInteger() != 0) out.setOne();
+			else out.setZero();
+		}, new ByteType());
 	}
 }

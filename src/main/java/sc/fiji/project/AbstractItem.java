@@ -2,6 +2,7 @@ package sc.fiji.project;
 
 import net.imglib2.type.numeric.ARGBType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,15 @@ public abstract class AbstractItem implements Item {
 	@Override
 	public void setColor(int color) {
 		this.color = color;
+	}
+
+	@Override
+	public boolean load() throws IOException {
+		return true;
+	}
+
+	@Override
+	public void unload() {
 	}
 
 	public String nameToFileName() {

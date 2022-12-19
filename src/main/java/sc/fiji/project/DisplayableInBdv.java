@@ -13,16 +13,21 @@ public interface DisplayableInBdv extends Item {
 	boolean isVisible();
 
 	List<BdvSource> getSources();
+	void setSources(List<BdvSource> sources);
 
 	default void removeFromBdv() {
 		if(getSources() == null) return;
 		getSources().forEach(BdvSource::removeFromBdv);
 		getSources().clear();
-		setVisible(false);
 	}
 
 	default void displayIfExists() {
 		if(exists()) addToBdv();
+	}
+
+	@Override
+	default void display() {
+		if(!isVisible()) addToBdv();
 	}
 
 }

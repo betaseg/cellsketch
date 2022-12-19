@@ -1,5 +1,6 @@
 package sc.fiji.project;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,5 +63,21 @@ public class DefaultItemGroup implements ItemGroup {
 			item.saveConfigTo(config);
 			data.put(item.getName(), config);
 		}
+	}
+
+	@Override
+	public void display() {
+		for(Item item : getItems()) item.display();
+	}
+
+	@Override
+	public boolean load() throws IOException {
+		for(Item item : getItems()) item.load();
+		return true;
+	}
+
+	@Override
+	public void unload() {
+		for(Item item : getItems()) item.unload();
 	}
 }

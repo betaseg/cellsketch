@@ -91,7 +91,7 @@ public class BdvProjectCard extends JPanel {
 			JMenuItem menuItem = menu.add(new AbstractAction(action.getTitle()) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					new Thread(action::run).start();
+					new Thread(action).start();
 				}
 			});
 			menuItem.setEnabled(action.isExecutable());
@@ -252,8 +252,8 @@ public class BdvProjectCard extends JPanel {
 
 		public Object getCellEditorValue() {
 			if (isPushed && item != null) {
-				if(!item.isVisible()) item.addToBdv();
-				else item.removeFromBdv();
+				if(item.isVisible()) item.removeFromBdv();
+				else item.addToBdv();
 			}
 			isPushed = false;
 			return item;

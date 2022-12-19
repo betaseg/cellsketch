@@ -5,21 +5,21 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.2.1</version>
+		<version>33.2.0</version>
 		<relativePath />
 	</parent>
 
-	<groupId>de.csbdresden</groupId>
-	<artifactId>betaseg</artifactId>
+	<groupId>de.frauzufall</groupId>
+	<artifactId>cellviewer</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
-	<name>betaseg</name>
-	<description>betaseg</description>
-	<url>http://csbdresden.de/</url>
+	<name>cellviewer</name>
+	<description>cellviewer</description>
+	<url>https://github.com/frauzufall/cellviewer/</url>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
-		<name>Center for System Biology Dresden</name>
-		<url>http://www.csbdresden.de/</url>
+		<name>Max Delbrück Center for Molecular Medicine</name>
+		<url>http://www.mdc-berlin.de/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -59,34 +59,37 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/juglab/betaseg</connection>
-		<developerConnection>scm:git:git@github.com/juglab/betaseg</developerConnection>
+		<connection>scm:git:git://github.com/frauzufall/cellviewer</connection>
+		<developerConnection>scm:git:git@github.com/frauzufall/cellviewer</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/juglab/betaseg</url>
+		<url>https://github.com/frauzufall/cellviewer</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/juglab/betaseg/issues</url>
+		<url>https://github.com/frauzufall/cellviewer/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.com/juglab/betaseg</url>
+		<url>https://travis-ci.com/frauzufall/cellviewer</url>
 	</ciManagement>
 
 	<properties>
-		<package-name>mpicbg.csbd</package-name>
+		<package-name>de.frauzufall</package-name>
 		<!-- LICENSE -->
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>
-			Deborah Schmidt
-		</license.copyrightOwners>
-		<bigdataviewer-vistools.version>1.0.0-beta-21</bigdataviewer-vistools.version>
+		<license.copyrightOwners>Deborah Schmidt</license.copyrightOwners>
+		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
+		<bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>scijava.public</id>
 			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 
@@ -96,17 +99,18 @@
 			<artifactId>imagej</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>imagej-legacy</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-plugins-io-table</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>labeleditor</artifactId>
-			<version>0.9.1-SNAPSHOT</version>
+			<groupId>com.github.frauzufall</groupId>
+			<artifactId>LabelEditor</artifactId>
+			<version>c2c0024ddf</version>
+		</dependency>
+		<dependency>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
+			<version>2.0.26</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -115,6 +119,39 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-vistools</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>bigdataviewer_fiji</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5-ij</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.janelia.saalfeldlab</groupId>
+					<artifactId>n5-blosc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.imagej</groupId>
+					<artifactId>imagej-legacy</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.saalfeldlab</groupId>
+			<artifactId>n5-viewer</artifactId>
+			<version>ec0b177</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.janelia.saalfeldlab</groupId>
+					<artifactId>n5-blosc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.janelia.saalfeldlab</groupId>
+					<artifactId>n5-ij</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>

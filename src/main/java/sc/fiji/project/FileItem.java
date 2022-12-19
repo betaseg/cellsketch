@@ -18,46 +18,64 @@ public class FileItem extends AbstractItem {
 
 	private final String fileType;
 	private File file;
+	protected String defaultFileName;
 	private final BdvProject project;
 
 	public FileItem(BdvProject project, String name, String fileType) {
+		this(project, name, fileType, null);
+	}
+
+	public FileItem(BdvProject project, String name, String fileType, String defaultFileName) {
 		super(name);
 		this.fileType = fileType;
 		this.project = project;
+		this.defaultFileName = defaultFileName;
+		if(defaultFileName!= null) {
+			this.file = new File(project.getProjectDir(), defaultFileName);
+		}
 		if(project.isEditable()) {
 			getActions().add(new DefaultAction(
 					"Import from file",
 					Collections.emptyList(),
-					this::importAsFile
+					() -> {
+						try {
+							importAsFile();
+							display();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 			));
 		}
 	}
 
-	protected boolean load() throws IOException { return false; }
+	@Override
+	public boolean load() throws IOException { return false; }
 	public boolean save() throws IOException { return false; }
 
-	protected boolean importAsFile() {
+	public boolean importAsFile() throws IOException {
+		CommandModule res = null;
 		try {
-			CommandModule res = null;
-			try {
-				res = project().context().getService(CommandService.class).run(ImportFile.class, true).get();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
-			}
-			if(res == null || res.isCanceled()) {
-				return false;
-			}
-			File file = (File) res.getInput("file");
-			boolean copy = (boolean) res.getInput("copy");
+			res = project().context().getService(CommandService.class).run(ImportFile.class, true).get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		if(res == null || res.isCanceled()) {
+			return false;
+		}
+		File file = (File) res.getInput("file");
+		boolean imported = importAsFile(file);
+		if(imported) {
+			project().updateUI();
+		}
+		return imported;
+	}
 
+	public boolean importAsFile(File file) throws IOException {
+		try {
 			if(file == null) return false;
-			if(copy) {
-				File copiedFile = new File(project.getProjectDir(), getDefaultFileName());
-				Files.copy(file.toPath(), copiedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				this.file = copiedFile;
-			} else {
-				this.file = file;
-			}
+			project.addFile(file.toPath(), getDefaultFileName());
+			this.file = new File(getDefaultFileName());
 			project.save();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -87,13 +105,18 @@ public class FileItem extends AbstractItem {
 		}
 	}
 
+	@Override
+	public void display() {
+
+	}
+
 	public String getFileName() {
 		if(getFile() == null) return getDefaultFileName();
 		return getFile().getName();
 	}
 
 	public String getDefaultFileName() {
-		return nameToFileName() + "." + getFileType();
+		return defaultFileName;
 	}
 
 	public File getFile() {

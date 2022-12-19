@@ -1,7 +1,7 @@
 package sc.fiji.project;
 
 import bdv.util.BdvSource;
-import de.csbdresden.betaseg.export.PlyExporter;
+import sc.fiji.project.export.PlyExporter;
 import net.imagej.DatasetService;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
@@ -12,16 +12,12 @@ import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.DoubleType;
 import org.scijava.io.IOService;
-import org.scijava.ui.UIService;
+import sc.fiji.labeleditor.core.model.colors.LabelEditorColor;
 import sc.fiji.labeleditor.core.model.colors.LabelEditorValueColor;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 
@@ -30,7 +26,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	private final Class tagClass;
 	private int referenceColumn;
 	private boolean visible = false;
-	private final List<BdvSource> sources = new ArrayList<>();
+	private List<BdvSource> sources = new ArrayList<>();
 
 	private boolean colorMaxValue = true;
 	private double maxValue;
@@ -55,6 +51,11 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 					Collections.singletonList(this),
 					this::exportMask
 			));
+			getActions().add(new DefaultAction(
+					"Export inverted mask",
+					Collections.singletonList(this),
+					this::exportInvertedMask
+			));
 		}
 		if(referenceLabelMap.project().isEditable()) {
 			PlyExporter plyExporter = new PlyExporter(referenceLabelMap.project().context().service(OpService.class), referenceLabelMap);
@@ -72,24 +73,26 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 		}
 	}
 
-	private void exportMask() {
-		List labels = referenceLabelMap.getModel().tagging().getLabels(tag);
-		Converter<LabelingType, ByteType> converter = (input, output) -> {
-			if(input.size() > 0 && labels.contains(input.iterator().next())) output.setOne();
-			else output.setZero();
-		};
-		RandomAccessibleInterval<ByteType> mask = Converters.convert(
-				(RandomAccessibleInterval<LabelingType>) referenceLabelMap.getModel().labeling(),
-				converter,
-				new ByteType());
-		String name = referenceLabelMap.project().getName() + " - " + referenceLabelMap.getName() + " - " + tag;
-		referenceLabelMap.project().context().service(UIService.class).show(name, mask);
+	public void exportMask() {
+		try {
+			getTagMask();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void exportInvertedMask() {
+		try {
+			getNoTagMask();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void plot() {
 		int column = referenceColumn;
 		tag = getName();
-		String series = referenceLabelMap.project().getName();
+		String series = referenceLabelMap.getName();
 		String title = series + ": " + tag;
 		String xLabel = tag;
 		String yLabel = "";
@@ -99,7 +102,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	}
 
 	private RandomAccessibleInterval getTagMask() throws IOException {
-		File exportMask = new File(getExportDir(), getExportName() + ".tif");
+		File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getExportName() + ".tif");
 		IOService io = referenceLabelMap.project().context().service(IOService.class);
 		DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
 		if(exportMask.exists()) {
@@ -112,27 +115,65 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 		return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
 	}
 
+	private RandomAccessibleInterval getNoTagMask() throws IOException {
+		File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getInvertedExportName() + ".tif");
+		IOService io = referenceLabelMap.project().context().service(IOService.class);
+		DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
+		if(exportMask.exists()) {
+			return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
+		} else {
+			RandomAccessibleInterval tagMask = hasNotTag();
+			exportMask.getParentFile().mkdirs();
+			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
+		}
+		return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
+	}
+
 	private String getExportName() {
 		return referenceLabelMap.nameToFileName() + "_" + nameToFileName();
+	}
+
+	private String getInvertedExportName() {
+		return referenceLabelMap.nameToFileName() + "_not_" + nameToFileName();
 	}
 
 	private File getExportDir() {
 		return new File(referenceLabelMap.project().getProjectDir(), "export");
 	}
 
-	public RandomAccessibleInterval<ByteType> hasTag() {
+	private RandomAccessibleInterval<ByteType> hasTag() {
 		List labels = referenceLabelMap.getModel().tagging().getLabels(tag);
+		Set allLabels = referenceLabelMap.getModel().labeling().getMapping().getLabels();
+		Map<Object, Boolean> hasTag = new HashMap<>();
+		for (Object label : allLabels) {
+			hasTag.put(label, labels.contains(label));
+		}
 		Converter<LabelingType, ByteType> converter = (input, output) -> {
-			if(input.size() > 0 && labels.contains(input.iterator().next())) output.setOne();
+			if(input.size() > 0 && hasTag.get(input.iterator().next())) output.setOne();
 			else output.setZero();
 		};
 		return Converters.convert((RandomAccessibleInterval<LabelingType>)referenceLabelMap.getModel().labeling(), converter, new ByteType());
+	}
+
+	private RandomAccessibleInterval<ByteType> hasNotTag() {
+		List labels = referenceLabelMap.getModel().tagging().getLabels(tag);
+		Set allLabels = referenceLabelMap.getModel().labeling().getMapping().getLabels();
+		Map<Object, Boolean> hasTag = new HashMap<>();
+		for (Object label : allLabels) {
+			hasTag.put(label, labels.contains(label));
+		}
+		Converter<LabelingType<?>, ByteType> converter = (input, output) -> {
+			if(input.size() > 0 && !hasTag.get(input.iterator().next())) output.setOne();
+			else output.setZero();
+		};
+		return Converters.convert((RandomAccessibleInterval<LabelingType<?>>)referenceLabelMap.getModel().labeling(), converter, new ByteType());
 	}
 
 	@Override
 	public void addToBdv() {
 //		InteractiveTableDisplayViewer viewer = new InteractiveTableDisplayViewer(new BdvAppTable(referenceLabelMap.getModel(), referenceTable.getTable()));
 //		viewer.display();
+		if(!referenceTable.exists()) return;
 		if(!referenceLabelMap.isVisible()) {
 			referenceLabelMap.addToBdv();
 		}
@@ -141,6 +182,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	}
 
 	void addTag() {
+		if(referenceTable == null || referenceTable.getTable() == null) return;
 //		referenceLabelMap.getModel().colors().pauseListeners();
 //		referenceLabelMap.getModel().tagging().pauseListeners();
 		int column = referenceColumn;
@@ -180,8 +222,9 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	public void removeFromBdv() {
 		setVisible(false);
 		String tag = getName();
-		if(tagClass.isAssignableFrom(Double.class)) {
-			LabelEditorValueColor<DoubleType> lecolor = (LabelEditorValueColor<DoubleType>) referenceLabelMap.getModel().colors().getFaceColor(tag);
+		LabelEditorColor faceColor = referenceLabelMap.getModel().colors().getFaceColor(tag);
+		if(faceColor.getClass().isAssignableFrom(LabelEditorValueColor.class)) {
+			LabelEditorValueColor<DoubleType> lecolor = (LabelEditorValueColor<DoubleType>) faceColor;
 			if(colorMaxValue) {
 				lecolor.setMaxColor(0, 0, 0, 0);
 				lecolor.setMinColor(0,0,0,0);
@@ -190,7 +233,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 				lecolor.setMaxColor(0,0,0,0);
 			}
 		} else {
-			referenceLabelMap.getModel().colors().getFaceColor(tag).set(0,0,0,0);
+			faceColor.set(0,0,0,0);
 		}
 	}
 
@@ -207,6 +250,11 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	@Override
 	public List<BdvSource> getSources() {
 		return sources;
+	}
+
+	@Override
+	public void setSources(List<BdvSource> sources) {
+		this.sources = sources;
 	}
 
 	@Override
@@ -242,8 +290,9 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 	@Override
 	public void updateBdvColor() {
 		String tag = getName();
-		if(tagClass.isAssignableFrom(Double.class)) {
-			LabelEditorValueColor<DoubleType> lecolor = (LabelEditorValueColor<DoubleType>) referenceLabelMap.getModel().colors().getFaceColor(tag);
+		LabelEditorColor faceColor = referenceLabelMap.getModel().colors().getFaceColor(tag);
+		if(faceColor.getClass().isAssignableFrom(LabelEditorValueColor.class)) {
+			LabelEditorValueColor<DoubleType> lecolor = (LabelEditorValueColor<DoubleType>) faceColor;
 			if(colorMaxValue) {
 				lecolor.setMaxColor(getColor());
 				lecolor.setMinColor(0,0,0,0);
@@ -252,7 +301,7 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 				lecolor.setMaxColor(0,0,0,0);
 			}
 		} else {
-			referenceLabelMap.getModel().colors().getFaceColor(tag).set(getColor());
+			faceColor.set(getColor());
 		}
 	}
 

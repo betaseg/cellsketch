@@ -16,11 +16,19 @@ public class TableFileItem extends FileItem {
 	private Table table;
 
 	public TableFileItem(BdvProject app, String name) {
-		this(app, name, null);
+		this(app, name, null, null);
+	}
+
+	public TableFileItem(BdvProject app, String name, String defaultFileName) {
+		this(app, name, defaultFileName, null);
 	}
 
 	public TableFileItem(BdvProject app, String name, TableColumnDefinition columns) {
-		super(app, name, "csv");
+		this(app, name, null, columns);
+	}
+
+	public TableFileItem(BdvProject app, String name, String defaultFileName, TableColumnDefinition columns) {
+		super(app, name, "csv", defaultFileName);
 		tableIOService = project().context().service(TableIOService.class);
 		this.columns = columns;
 		getActions().add(new DefaultAction(
@@ -34,7 +42,13 @@ public class TableFileItem extends FileItem {
 		project().context().getService(UIService.class).show(getTable());
 	}
 
+	@Override
+	public void display() {
+		displayTable();
+	}
+
 	public boolean load() throws IOException {
+		if(getFile() == null || !getFile().exists()) return false;
 		//TODO this is sadly the only way to make the table io plugin save and read both column and row headers
 		//TODO https://github.com/scijava/scijava-table/pull/14
 		Table _table = tableIOService.open(getFile().getAbsolutePath(), TableIOOptions.options().readColumnHeaders(true).readRowHeaders(true));

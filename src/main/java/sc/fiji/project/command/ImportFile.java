@@ -13,9 +13,6 @@ public class ImportFile implements Command {
 	@Parameter(label = "File")
 	private File file;
 
-	@Parameter(label = "Copy into project")
-	private boolean copy = false;
-
 	@Override
 	public void run() {
 

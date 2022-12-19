@@ -63,7 +63,7 @@ public class ExampleProjectCommand implements Command {
 
 	@Override
 	public void run() {
-		project = new DefaultBdvProject(projectDir, context);
+		project = new DefaultBdvProject(projectDir, "Example", context);
 		project.setEditable(editMode);
 		setupItems();
 		setupColors();
@@ -80,22 +80,22 @@ public class ExampleProjectCommand implements Command {
 	}
 
 	private void setupItems() {
-		sourceItem = new ImageFileItem(project, "Source");
+		sourceItem = new ImageFileItem(project, "Source", "volumes" + File.separator + "source");
 		setupUnsortedGroup();
 		setupMitochondria();
 		setupSynapses();
 	}
 
 	private void setupUnsortedGroup() {
-		membranesNeuritesGliaLabelsItem = new LabelMapFileItem(project, "Membranes, neurites, glia");
-		noiseItem = new LabelMapFileItem(project, "Noise");
+		membranesNeuritesGliaLabelsItem = new LabelMapFileItem(project, "Membranes, neurites, glia", "volumes" + File.separator + "membranes_neurites_glia");
+		noiseItem = new LabelMapFileItem(project, "Noise", "volumes" + File.separator + "noise");
 		unsortedGroup = new DefaultItemGroup("Unsorted");
 		unsortedGroup.getItems().add(membranesNeuritesGliaLabelsItem);
 		unsortedGroup.getItems().add(noiseItem);
 	}
 
 	private void setupMitochondria() {
-		mitochondriaLabelsItem = new LabelMapFileItem(project, "Mitochondria labels");
+		mitochondriaLabelsItem = new LabelMapFileItem(project, "Mitochondria labels", "volumes" + File.separator + "mitochondria");
 		mitochondriaStatsItem = new TableFileItem(project, "Mitochondria stats", new MitochondriaTable());
 		mitochondriaSizeItem = mitochondriaLabelsItem.addLabel("Mitochondria size", mitochondriaStatsItem, MitochondriaTable.getSizeColumn(), Double.class);
 		mitochondriaGroup = new DefaultItemGroup("Mitochondria");
@@ -105,7 +105,7 @@ public class ExampleProjectCommand implements Command {
 	}
 
 	private void setupSynapses() {
-		synapsesLabelsItem = new LabelMapFileItem(project, "Synapses labels");
+		synapsesLabelsItem = new LabelMapFileItem(project, "Synapses labels", "volumes" + File.separator + "synapses");
 		synapsesStatsItem = new TableFileItem(project, "Synapses stats", new SynapsesTable());
 		synapsesSizeItem = synapsesLabelsItem.addLabel("Synapses size", synapsesStatsItem, SynapsesTable.getSizeColumn(), Double.class);
 		synapsesGroup = new DefaultItemGroup("Synapses");
