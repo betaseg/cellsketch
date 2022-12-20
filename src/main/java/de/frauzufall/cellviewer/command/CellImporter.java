@@ -66,19 +66,19 @@ public class CellImporter implements Command {
 	private File granulesMap;
 
 	@Parameter(label = "Microtubules KNOSSOS file", required = false)
-	@Option(name = "--microtubules_labelmap")
+	@Option(name = "--microtubules_knossos")
 	private File microtubulesKnossosFile;
 
 	@Parameter(label = "Microtubules scale factor X", stepSize="0.0001")
-	@Option(name = "--granules_scale_x")
+	@Option(name = "--microtubules_scale_x")
 	double microtubulesScaleX = 0.25;
 
 	@Parameter(label = "Microtubules scale factor Y", stepSize="0.0001")
-	@Option(name = "--granules_scale_y")
+	@Option(name = "--microtubules_scale_y")
 	double microtubulesScaleY = 0.25;
 
 	@Parameter(label = "Microtubules scale factor Y", stepSize="0.0001")
-	@Option(name = "--granules_scale_z")
+	@Option(name = "--microtubules_scale_z")
 	double microtubulesScaleZ = 0.2125;
 
 //	double scale_low = 4.24 / 4.;
