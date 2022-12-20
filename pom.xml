@@ -139,19 +139,8 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.github.saalfeldlab</groupId>
-			<artifactId>n5-viewer</artifactId>
-			<version>ec0b177</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.janelia.saalfeldlab</groupId>
-					<artifactId>n5-blosc</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.janelia.saalfeldlab</groupId>
-					<artifactId>n5-ij</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5-viewer_fiji</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
