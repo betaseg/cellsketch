@@ -5,7 +5,6 @@ import de.frauzufall.cellviewer.analysis.AnalyzeUtils;
 import de.frauzufall.cellviewer.analysis.GranulesAnalyzer;
 import de.frauzufall.cellviewer.analysis.MicrotubulesAnalyzer;
 import de.frauzufall.cellviewer.analysis.NMLReader;
-import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
@@ -95,8 +94,8 @@ public class CellAnalyzer implements Command {
 	}
 
 	private <T extends RealType<T>> Img<ByteType> boundary(RandomAccessibleInterval<T> image) {
-		RandomAccessibleInterval<BoolType> res = Converters.convert(image, (input, output) -> output.set(input.getRealFloat() > 0), new BoolType());
-		return ops.convert().int8(Views.iterable(new Boundary<>(res)));
+		RandomAccessibleInterval<ByteType> res = Converters.convert(image, (input, output) -> output.set((byte) (input.getRealFloat() > 0? 255 : 0)), new ByteType());
+		return ops.convert().int8(Views.iterable(res));
 	}
 
 	private void analyzeMembrane() throws IOException {

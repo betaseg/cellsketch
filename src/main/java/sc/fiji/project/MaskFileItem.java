@@ -10,7 +10,7 @@ public class MaskFileItem extends ImageFileItem<ByteType> {
 
 	public MaskFileItem(BdvProject app, String name, String defaultFileName) {
 		super(app, name, defaultFileName);
-		this.max = 1.0;
+		this.max = 255.0;
 		if(app.isEditable()) {
 			PlyExporter plyExporter = new PlyExporter(project().context().service(OpService.class), this);
 			getActions().add(new DefaultAction(
