@@ -9,8 +9,6 @@ import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
-import net.imglib2.roi.boundary.Boundary;
-import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.view.Views;
@@ -44,7 +42,7 @@ public class CellAnalyzer implements Command {
 	private File projectDir;
 
 	@Parameter(label = "Pixel of imported masks to μm factor")
-	@Option(name = "--pixelToMicroMeters")
+	@Option(name = "--pixel_to_micrometers")
 	private double pixelToMicroMeters = 0.004 *4;
 
 	@Parameter
