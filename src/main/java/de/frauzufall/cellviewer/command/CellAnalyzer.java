@@ -174,6 +174,7 @@ public class CellAnalyzer implements Command {
 		command_args.put("pixelToMicroMeters", this.pixelToMicroMeters);
 		Context context = new Context();
 		context.service(CommandService.class).run(CellAnalyzer.class, false, command_args).get();
+		context.dispose();
 		System.out.println("Done.");
 	}
 }
