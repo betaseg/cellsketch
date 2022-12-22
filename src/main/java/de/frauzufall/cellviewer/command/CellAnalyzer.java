@@ -9,6 +9,8 @@ import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
+import net.imglib2.roi.boundary.Boundary;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.view.Views;
@@ -74,6 +76,7 @@ public class CellAnalyzer implements Command {
 	public void createMissingData() {
 		if (!data.getMembraneMaskItem().exists()) {
 			if(data.getMembraneFullMaskItem().exists()) {
+				System.out.println("Calculating membrane boundary..");
 				calculateBoundary(data.getMembraneFullMaskItem(), data.getMembraneMaskItem());
 				data.getMembraneFullMaskItem().unload();
 			} else {
@@ -92,13 +95,14 @@ public class CellAnalyzer implements Command {
 	}
 
 	private <T extends RealType<T>> Img<ByteType> boundary(RandomAccessibleInterval<T> image) {
-		RandomAccessibleInterval<ByteType> res = Converters.convert(image, (input, output) -> output.set((byte) (input.getRealFloat() > 0? 255 : 0)), new ByteType());
-		return ops.convert().int8(Views.iterable(res));
+		RandomAccessibleInterval<BoolType> res = Converters.convert(image, (input, output) -> output.set(input.getRealFloat() > 0), new BoolType());
+		return ops.convert().int8(Converters.convert(Views.iterable(new Boundary<>(res)), (input, output) -> output.set((byte) (input.get()? 255 : 0)), new ByteType()));
 	}
 
 	private void analyzeMembrane() throws IOException {
 		if(!data.getMembraneDistanceMapItem().exists()) {
 			if(data.getMembraneMaskItem().exists()) {
+				System.out.println("Calculating membrane distance transform..");
 				AnalyzeUtils.calculateDistanceTransform(ops, data.getMembraneMaskItem(), data.getMembraneDistanceMapItem());
 			} else {
 				System.out.println("Cannot calculate distance transform of membrane mask, mask not found.");
