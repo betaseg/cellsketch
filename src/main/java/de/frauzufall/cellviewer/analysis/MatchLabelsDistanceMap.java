@@ -56,7 +56,6 @@ class MatchLabelsDistanceMap {
 	}
 
 	private static Map<Object, ClosestPoint> computeDistance(LabelEditorModel<IntType> model, RandomAccessibleInterval<? extends RealType> distanceTransform) {
-		System.out.println("start analysis..");
 		LabelRegions<IntType> newregions = new LabelRegions<>(model.labeling());
 		Iterator<LabelRegion<IntType>> iterator = newregions.iterator();
 		Map<Object, ClosestPoint> analysis = new HashMap<>();
@@ -81,7 +80,7 @@ class MatchLabelsDistanceMap {
 		return () -> {
 			ClosestPoint nearest = getClosestPointMembrane(distanceTransform, labelRegion);
 			analysis.put(labelRegion.getLabel(), nearest);
-			System.out.println("Distance " + labelRegion.getLabel() + " (total " + size + ") : " + nearest.distance);
+//			System.out.println("Distance " + labelRegion.getLabel() + " (total " + size + ") : " + nearest.distance);
 		};
 	}
 

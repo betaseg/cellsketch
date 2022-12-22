@@ -630,7 +630,6 @@ public class MicrotubulesAnalyzer {
     }
 
     private static Map<Object, Pair<ClosestPoint, ClosestPoint>> computeDistance(List<List<Point>> mts, RandomAccessibleInterval<? extends RealType> distanceTransform) {
-        System.out.println("start analysis..");
         Map<Object, Pair<ClosestPoint, ClosestPoint>> analysis = new HashMap<>();
         RandomAccess<? extends RealType> ra = distanceTransform.randomAccess();
         for (int i = 0; i < mts.size(); i++) {

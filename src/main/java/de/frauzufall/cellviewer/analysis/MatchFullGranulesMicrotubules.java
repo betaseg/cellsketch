@@ -1,7 +1,6 @@
 package de.frauzufall.cellviewer.analysis;
 
 import de.frauzufall.cellviewer.GranulesTable;
-import net.imagej.ops.OpService;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -11,20 +10,13 @@ import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
-import org.scijava.Context;
-import org.scijava.io.IOService;
 import org.scijava.table.Table;
-import org.scijava.ui.UIService;
 import sc.fiji.labeleditor.core.model.LabelEditorModel;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class MatchFullGranulesMicrotubules {
 
@@ -50,7 +42,6 @@ public class MatchFullGranulesMicrotubules {
 	}
 
 	private static Map<Object, ClosestPoint> computeDistance(LabelEditorModel<IntType> model, RandomAccessibleInterval<? extends RealType> distanceTransform) {
-		System.out.println("start analysis..");
 		LabelRegions<IntType> newregions = new LabelRegions<>(model.labeling());
 		Iterator<LabelRegion<IntType>> iterator = newregions.iterator();
 		Map<Object, ClosestPoint> analysis = new HashMap<>();
@@ -75,7 +66,7 @@ public class MatchFullGranulesMicrotubules {
 		return () -> {
 			ClosestPoint nearest = getClosestPointMembrane(distanceTransform, labelRegion);
 			analysis.put(labelRegion.getLabel(), nearest);
-			System.out.println("Distance " + labelRegion.getLabel() + " (total " + size + ") : " + nearest.distance);
+//			System.out.println("Distance " + labelRegion.getLabel() + " (total " + size + ") : " + nearest.distance);
 		};
 	}
 
