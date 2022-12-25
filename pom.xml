@@ -104,8 +104,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.frauzufall</groupId>
-			<artifactId>LabelEditor</artifactId>
-			<version>a437defbb8</version>
+			<artifactId>labeleditor</artifactId>
+			<version>labeleditor-0.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>args4j</groupId>
