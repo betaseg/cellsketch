@@ -8,8 +8,6 @@ from matplotlib.ticker import PercentFormatter
 
 color_random = '#000000'
 
-pixelToUM = 0.004 * 4
-
 random_dist = {
     'microtubules_individual.csv': {
         'distance of MT end 1 to membrane in um': [
@@ -70,7 +68,7 @@ def read_table(cell, table_name):
     return pandas.read_table(os.path.join(cell.path, 'misc', cell.name + "_" + table_name), delimiter=',')
 
 
-def subplot_histogram(cell, table_name, column, min_x, max_x, max_y, ax):
+def subplot_histogram(cell, table_name, column, min_x, max_x, max_y, ax, pixel_to_um):
     table = read_table(cell, table_name)
     if column not in table:
         return
@@ -81,7 +79,7 @@ def subplot_histogram(cell, table_name, column, min_x, max_x, max_y, ax):
     ax2.hist(data, histtype="step", cumulative=True, linestyle="dotted", color="#FF0000",
              weights=np.ones(len(data)) / len(data), **kws)
     if random_dist[table_name] is not None:
-        data_random = get_random_distribution(cell, table_name, column)
+        data_random = get_random_distribution(cell, table_name, column, pixel_to_um)
         if data_random is not None:
             ax.hist(data_random, histtype="step", label="random distribution", color=color_random,
                     weights=np.ones(len(data_random)) / len(data_random), **kws)
@@ -95,7 +93,7 @@ def subplot_histogram(cell, table_name, column, min_x, max_x, max_y, ax):
     ax2.tick_params(axis='y', labelcolor="#FF0000")
 
 
-def get_random_distribution(cell, table, column):
+def get_random_distribution(cell, table, column, pixel_to_um):
     table_ = random_dist[table]
     if table_ is None:
         return None
@@ -107,7 +105,7 @@ def get_random_distribution(cell, table, column):
     mask_out = random_dist[table][column][2]
     mask_nucleus = "nucleus"
     data = get_histogram_data(cell.read_volume(distance_map), cell.read_volume(mask_in),
-                              cell.read_volume(mask_out), cell.read_volume(mask_nucleus))
+                              cell.read_volume(mask_out), cell.read_volume(mask_nucleus), pixel_to_um)
     if table == 'granules_individual.csv':
         mean_volume = read_table(cell, 'granules.csv')['mean size in micrometer^3'][0]
         mean_radius = (3. / (4. * np.pi) * mean_volume) ** (1. / 3.)
@@ -117,13 +115,13 @@ def get_random_distribution(cell, table, column):
     return data
 
 
-def get_histogram_data(distance_map, mask_in, mask_out, mask_nucleus):
+def get_histogram_data(distance_map, mask_in, mask_out, mask_nucleus, pixel_to_um):
     mask = mask_in > 0
     if mask_out is not None:
         mask = mask & (mask_out == 0)
     mask = mask & (mask_nucleus == 0)
     distance_map = np.array(distance_map)
-    distances = distance_map[mask] * pixelToUM
+    distances = distance_map[mask] * pixel_to_um
     return distances
 
 
