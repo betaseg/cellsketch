@@ -80,10 +80,13 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 	public void doMain(String[] args) throws ExecutionException, InterruptedException {
 		if (!parseArguments(args)) return;
 		Map<String, Object> command_args = new HashMap<>();
-//		command_args.put("projectName", this.projectName);
-//		command_args.put("parent", this.parent);
-//		command_args.put("input", this.input);
-//		command_args.put("pixelToUM", this.pixelToUM);
+		command_args.put("projectName", this.projectName);
+		command_args.put("parent", this.parent);
+		command_args.put("input", this.input);
+		command_args.put("pixelToUM", this.pixelToUM);
+		command_args.put("scaleX", this.scaleX);
+		command_args.put("scaleY", this.scaleY);
+		command_args.put("scaleZ", this.scaleZ);
 		Context context = new Context();
 		context.service(UIService.class).showUI();
 		context.service(CommandService.class).run(this.getClass(), true, command_args).get();

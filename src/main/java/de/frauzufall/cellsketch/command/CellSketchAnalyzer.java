@@ -66,6 +66,7 @@ public class CellSketchAnalyzer extends CommandWithCmdLineParser {
 		Map<String, Object> command_args = new HashMap<>();
 		if(this.project != null) command_args.put("project", this.project);
 		command_args.put("skipExistingDistanceMaps", this.skipExistingDistanceMaps);
+		command_args.put("connectedThresholdInUM", this.connectedThresholdInUM);
 		Context context = new Context();
 		context.service(CommandService.class).run(this.getClass(), false, command_args).get();
 		context.dispose();

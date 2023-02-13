@@ -51,9 +51,9 @@ public class AddFilamentsFromKNOSSOS extends CommandColoredEntity {
 		if (!parseArguments(args)) return;
 		Map<String, Object> command_args = new HashMap<>();
 		if(this.project != null) command_args.put("project", this.project);
-		command_args.put("color", this.color);
 		command_args.put("input", this.input);
 		command_args.put("name", this.name);
+		command_args.put("color", this.color);
 		command_args.put("scaleX", this.scaleX);
 		command_args.put("scaleY", this.scaleY);
 		command_args.put("scaleZ", this.scaleZ);

@@ -51,6 +51,9 @@ public class AddLabelMap extends CommandColoredEntityWithFilamentConnection {
 		command_args.put("input", this.input);
 		command_args.put("name", this.name);
 		command_args.put("color", this.color);
+		command_args.put("scaleX", this.scaleX);
+		command_args.put("scaleY", this.scaleY);
+		command_args.put("scaleZ", this.scaleZ);
 		command_args.put("analyzeConnectionFilamentEnds", this.analyzeConnectionFilamentEnds);
 		command_args.put("thresholdConnectionFilamentEnds", this.thresholdConnectionFilamentEnds);
 		Context context = new Context();
