@@ -10,12 +10,12 @@
 	</parent>
 
 	<groupId>de.frauzufall</groupId>
-	<artifactId>cellviewer</artifactId>
+	<artifactId>cellsketch</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
-	<name>cellviewer</name>
-	<description>cellviewer</description>
-	<url>https://github.com/frauzufall/cellviewer/</url>
+	<name>cellsketch</name>
+	<description>cellsketch</description>
+	<url>https://github.com/betaseg/cellsketch/</url>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
 		<name>Max Delbrück Center for Molecular Medicine</name>
@@ -59,18 +59,18 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/frauzufall/cellviewer</connection>
-		<developerConnection>scm:git:git@github.com/frauzufall/cellviewer</developerConnection>
+		<connection>scm:git:git://github.com/betaseg/cellsketch</connection>
+		<developerConnection>scm:git:git@github.com/betaseg/cellsketch</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/frauzufall/cellviewer</url>
+		<url>https://github.com/betaseg/cellsketch</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/frauzufall/cellviewer/issues</url>
+		<url>https://github.com/betaseg/cellsketch/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.com/frauzufall/cellviewer</url>
+		<url>https://travis-ci.com/betaseg/cellsketch</url>
 	</ciManagement>
 
 	<properties>
@@ -95,17 +95,13 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>imagej</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-plugins-io-table</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.frauzufall</groupId>
 			<artifactId>labeleditor</artifactId>
-			<version>labeleditor-0.10.0</version>
+			<version>labeleditor-0.10.2</version>
 		</dependency>
 		<dependency>
 			<groupId>args4j</groupId>
@@ -147,6 +143,16 @@
 					<artifactId>n5-ij</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
