@@ -168,7 +168,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		bdvHandlePanel.getCardPanel().addCard("Items", itemsCard, true );
 		bdvHandlePanel.getSplitPanel().updateUI();
 		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_SOURCEGROUPS_CARD);
-//		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_SOURCES_CARD);
+		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_SOURCES_CARD);
 		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_VIEWERMODES_CARD);
 		bdvHandlePanel.getViewerPanel().setMinimumSize(new Dimension(600, 600));
 //		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, bdvHandlePanel.getViewerPanel(), card);
