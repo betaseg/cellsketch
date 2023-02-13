@@ -125,6 +125,34 @@
 					<artifactId>n5-blosc</artifactId>
 				</exclusion>
 				<exclusion>
+					<groupId>org.janelia.saalfeldlab</groupId>
+					<artifactId>n5-aws</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.amazonaws</groupId>
+					<artifactId>aws-java-sdk-s3</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.amazonaws</groupId>
+					<artifactId>aws-java-sdk-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.janelia.saalfeldlab</groupId>
+					<artifactId>n5-google-cloud</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.cloud</groupId>
+					<artifactId>google-cloud-resourcemanager</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.cloud</groupId>
+					<artifactId>google-cloud-storage</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.api</groupId>
+					<artifactId>gax</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>net.imagej</groupId>
 					<artifactId>imagej-legacy</artifactId>
 				</exclusion>
@@ -162,6 +190,12 @@
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
+		</dependency>
+		<!-- when importing this project in gradle, it keeps complaining about this missing lib -->
+		<dependency>
+			<groupId>com.github.jnr</groupId>
+			<artifactId>jnr-ffi</artifactId>
+			<version>2.0.9</version>
 		</dependency>
 		<!-- test dependencies -->
 		<dependency>
