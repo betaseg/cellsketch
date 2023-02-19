@@ -35,7 +35,7 @@ public class CellSketchAnalyzer extends CommandWithCmdLineParser {
 	private boolean skipExistingDistanceMaps = false;
 
 	@Parameter(required = false)
-	protected CellProject projectObject;
+	protected CellProject projectObject = null;
 
 	@Parameter
 	private Context context;
