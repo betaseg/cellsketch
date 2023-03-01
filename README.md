@@ -21,7 +21,7 @@ Via commandline call
 album add-catalog https://gitlab.com/album-app/catalogs/helmholtz-imaging
 ```
 
-Via GUI first launch Album. The installer of Album should have created a launcher for you, either on your desktop or in your list of applications. In the interface, click on `catalogs` in the bottom left corner, then click `Add catalog`. Enter the following URL: `https://gitlab.com/album-app/catalogs/helmholtz-imaging-dev` and confirm.
+Via GUI first launch Album. The installer of Album should have created a launcher for you, either on your desktop or in your list of applications. In the interface, click on `catalogs` in the bottom left corner, then click `Add catalog`. Enter the following URL: `https://gitlab.com/album-app/catalogs/helmholtz-imaging` and confirm.
 
 ### Install CellSketch solutions
 
