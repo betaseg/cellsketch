@@ -1,6 +1,7 @@
 package de.frauzufall.cellsketch.command;
 
 import de.frauzufall.cellsketch.CellProject;
+import de.frauzufall.cellsketch.CellSketch;
 import org.kohsuke.args4j.Option;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -46,8 +47,8 @@ public class CellSketchViewer extends CommandWithCmdLineParser {
 		if (!parseArguments(args)) return;
 		Map<String, Object> command_args = new HashMap<>();
 		if(this.projectDir != null) command_args.put("projectDir", this.projectDir);
-		Context context = new Context();
-		context.service(UIService.class).showUI();
-		context.service(CommandService.class).run(this.getClass(), true, command_args).get();
+		CellSketch cellSketch = new CellSketch();
+		cellSketch.ui().showUI();
+		cellSketch.command().run(this.getClass(), true, command_args).get();
 	}
 }

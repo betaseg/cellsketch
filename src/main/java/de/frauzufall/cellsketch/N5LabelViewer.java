@@ -30,7 +30,7 @@ import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
-import de.frauzufall.cellsketch.CellProject;
+import bdv.viewer.ViewerFrame;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -54,6 +54,8 @@ import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalSpatialMetadata;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import sc.fiji.labeleditor.plugin.interfaces.bdv.BdvInterface;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,15 +88,16 @@ public class N5LabelViewer {
 
 	/**
 	 * Creates a new N5Viewer with the given data sets.
-	 * @param labelEditorInterface
 	 * @param parentFrame parent frame, can be null
 	 * @param dataSelection data sets to display
+	 * @param labelEditorInterface
+	 * @param context
 	 * @throws IOException
 	 */
 	public < T extends NumericType< T > & NativeType< T >,
 					V extends Volatile< T > & NumericType< V >,
 					R extends N5Reader >
-	N5LabelViewer(final DataSelection dataSelection, final BdvInterface labelEditorInterface) throws IOException
+	N5LabelViewer(final DataSelection dataSelection, final BdvInterface labelEditorInterface, final DefaultBdvProject project) throws IOException
 	{
 		Prefs.showScaleBar( true );
 
@@ -140,6 +143,42 @@ public class N5LabelViewer {
 			if (bdvHandle == null) {
 				// Create and show a BdvHandleFrame with the first source
 				BdvStackSource<?> source = BdvFunctions.show(sourcesAndConverter, options);
+				ViewerFrame frame = ((BdvHandleFrame)source.getBdvHandle()).getBigDataViewer().getViewerFrame();
+				frame.addWindowListener(new WindowListener() {
+					@Override
+					public void windowOpened(WindowEvent e) {
+
+					}
+
+					@Override
+					public void windowClosing(WindowEvent e) {
+					}
+
+					@Override
+					public void windowClosed(WindowEvent e) {
+						project.dispose();
+					}
+
+					@Override
+					public void windowIconified(WindowEvent e) {
+
+					}
+
+					@Override
+					public void windowDeiconified(WindowEvent e) {
+
+					}
+
+					@Override
+					public void windowActivated(WindowEvent e) {
+
+					}
+
+					@Override
+					public void windowDeactivated(WindowEvent e) {
+
+					}
+				});
 				bdvSources.add(source);
 				bdvHandle = source.getBdvHandle();
 				labelEditorInterface.setup(bdvHandle);

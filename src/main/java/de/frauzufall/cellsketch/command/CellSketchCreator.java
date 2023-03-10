@@ -1,11 +1,11 @@
 package de.frauzufall.cellsketch.command;
 
 import de.frauzufall.cellsketch.CellProject;
+import de.frauzufall.cellsketch.CellSketch;
 import net.imglib2.type.numeric.ARGBType;
 import org.kohsuke.args4j.Option;
 import org.scijava.Context;
 import org.scijava.command.Command;
-import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
@@ -87,10 +87,8 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 		command_args.put("scaleX", this.scaleX);
 		command_args.put("scaleY", this.scaleY);
 		command_args.put("scaleZ", this.scaleZ);
-		Context context = new Context();
-		context.service(UIService.class).showUI();
-		context.service(CommandService.class).run(this.getClass(), true, command_args).get();
-//		context.dispose();
-//		System.out.println("Done.");
+		CellSketch cellSketch = new CellSketch();
+		cellSketch.ui().showUI();
+		cellSketch.command().run(this.getClass(), true, command_args).get();
 	}
 }

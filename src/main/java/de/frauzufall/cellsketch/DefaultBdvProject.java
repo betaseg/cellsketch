@@ -105,7 +105,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 			if (dataSelection == null) return;
 			labelEditorInterface = new BdvInterface(context);
 			projectData.put(sourceItem.getDefaultFileName(), dataSelection);
-			viewer = new N5LabelViewer(dataSelection, labelEditorInterface);
+			viewer = new N5LabelViewer(dataSelection, labelEditorInterface, this);
 			sourceItem.setSources(viewer.getSourceSources());
 			bdvHandlePanel = viewer.getBdv();
 			appendLabelEditor();
@@ -171,16 +171,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_SOURCES_CARD);
 		bdvHandlePanel.getCardPanel().removeCard(BdvDefaultCards.DEFAULT_VIEWERMODES_CARD);
 		bdvHandlePanel.getViewerPanel().setMinimumSize(new Dimension(600, 600));
-//		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, bdvHandlePanel.getViewerPanel(), card);
-//		splitPane.setDividerLocation(0.3);
-//		splitPane.revalidate();
-//		frame.setContentPane(splitPane);
-//		frame.pack();
-//		frame.setMinimumSize(new Dimension(900, 600));
-////		frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-//		frame.setVisible(true);
 		bdvHandlePanel.getSplitPanel().setCollapsed(false);
-//		bdvHandlePanel.getSplitPanel().setDividerLocation(0.6);
 	}
 
 	public void populateModel() {
@@ -335,6 +326,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 	public void dispose() {
 		unload();
 		if(bdvHandlePanel != null) bdvHandlePanel.close();
+		context().dispose();
 	}
 
 	@Override

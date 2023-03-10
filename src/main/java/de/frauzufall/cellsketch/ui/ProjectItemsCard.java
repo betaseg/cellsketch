@@ -41,10 +41,9 @@ public class ProjectItemsCard extends JPanel {
 	private final ItemTableModel model = new ItemTableModel();
 
 	private static int VISIBILITY_COL = 0;
-	private static int EXISTENCE_COL = 1;
-	private static int TITLE_COL = 2;
-	private static int COLOR_COL = 3;
-	private static int ACTIONS_COL = 4;
+	private static int TITLE_COL = 1;
+	private static int COLOR_COL = 2;
+	private static int ACTIONS_COL = 3;
 
 	private static int squareColWidth = 25;
 
@@ -63,9 +62,6 @@ public class ProjectItemsCard extends JPanel {
 		visibilityColumn.setMaxWidth(squareColWidth);
 		visibilityColumn.setCellEditor(new VisibilityButtonEditor());
 		visibilityColumn.setCellRenderer(new VisibilityButtonRenderer());
-		TableColumn existenceColumn = table.getColumnModel().getColumn(EXISTENCE_COL);
-		existenceColumn.setMaxWidth(squareColWidth);
-		existenceColumn.setCellRenderer(new ExistenceRenderer());
 		TableColumn titleColumn = table.getColumnModel().getColumn(TITLE_COL);
 		titleColumn.setCellRenderer(new TitleRenderer());
 		TableColumn colorColumn = table.getColumnModel().getColumn(COLOR_COL);
@@ -87,7 +83,9 @@ public class ProjectItemsCard extends JPanel {
 	}
 
 	public void addItem(Item item) {
-		model.getItems().add(item);
+		if(item.exists()) {
+			model.getItems().add(item);
+		}
 		if(ItemGroup.class.isAssignableFrom(item.getClass())) {
 			((ItemGroup)item).getItems().forEach(child -> model.getItems().add(child));
 		}
@@ -136,33 +134,6 @@ public class ProjectItemsCard extends JPanel {
 				setEnabled(item.exists());
 			} else {
 				setIcon(null);
-			}
-			return this;
-		}
-	}
-
-	static class ExistenceRenderer extends DefaultTableCellRenderer {
-
-		ExistenceRenderer() {
-			setHorizontalAlignment(SwingConstants.CENTER);
-			setFont(new Font("Serif", Font.BOLD, 12));
-		}
-
-		public Component getTableCellRendererComponent(JTable table, Object value,
-		                                               boolean isSelected, boolean hasFocus, int row, int column) {
-			if(value == null) return this;
-			Item item = (Item) value;
-			if(ItemGroup.class.isAssignableFrom(value.getClass())) {
-				setText("");
-			} else {
-				if(item.exists()) {
-					setText("\u2713");
-					setToolTipText(item.toString());
-					setForeground(Color.getHSBColor(0.3f, 1, 0.6f));
-				} else {
-					setText("\u2013");
-					setForeground(Color.red);
-				}
 			}
 			return this;
 		}
@@ -309,7 +280,6 @@ public class ProjectItemsCard extends JPanel {
 		@Override
 		public String getColumnName(int column) {
 			if(column == VISIBILITY_COL) return "visibility";
-			if(column == EXISTENCE_COL) return "existence";
 			if(column == TITLE_COL) return "name";
 			if(column == COLOR_COL) return "color";
 			if(column == ACTIONS_COL) return "actions";
@@ -323,7 +293,7 @@ public class ProjectItemsCard extends JPanel {
 
 		@Override
 		public int getColumnCount() {
-			return 5;
+			return 4;
 		}
 
 		@Override
@@ -357,9 +327,7 @@ public class ProjectItemsCard extends JPanel {
 		private Color currentColor;
 		private JButton button;
 		private JColorChooser colorChooser;
-		private JDialog dialog;
 		private static final String EDIT = "edit";
-		private DisplayableInBdv item;
 
 		ColorEditor() {
 			button = new JButton();
@@ -367,13 +335,17 @@ public class ProjectItemsCard extends JPanel {
 			button.addActionListener(this);
 			button.setBorderPainted(false);
 			colorChooser = new JColorChooser();
-			dialog = JColorChooser.createDialog(button,"Pick a Color", true, colorChooser,this, null);
 		}
 
 		public void actionPerformed(ActionEvent e) {
+			DisplayableInBdv item = null;
+			if(DisplayableInBdv.class.isAssignableFrom(getCellEditorValue().getClass())) {
+				item = (DisplayableInBdv) getCellEditorValue();
+			}
 			if (EDIT.equals(e.getActionCommand())) {
 				button.setBackground(currentColor);
 				colorChooser.setColor(currentColor);
+				JDialog dialog = JColorChooser.createDialog(button, "Pick a Color", true, colorChooser, this, null);
 				dialog.setVisible(true);
 				fireEditingStopped();
 			} else {
@@ -386,7 +358,6 @@ public class ProjectItemsCard extends JPanel {
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
-					item = null;
 				}
 			}
 		}
@@ -396,9 +367,6 @@ public class ProjectItemsCard extends JPanel {
 		}
 
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-			if(DisplayableInBdv.class.isAssignableFrom(value.getClass())) {
-				item = (DisplayableInBdv) value;
-			}
 			int color = ((Item) value).getColor();
 			currentColor = new Color(color);
 			return button;

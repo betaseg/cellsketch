@@ -45,7 +45,9 @@ public class CellSketchAnalyzer extends CommandWithCmdLineParser {
 
 	@Override
 	public void run() {
+		boolean projectExists = true;
 		if(projectObject == null) {
+			projectExists = false;
 			projectObject = new CellProject(this.project, context);
 			try {
 				projectObject.loadConfig();
@@ -54,7 +56,9 @@ public class CellSketchAnalyzer extends CommandWithCmdLineParser {
 			}
 		}
 		new CellAnalyzer(projectObject, skipExistingDistanceMaps, ops, connectedThresholdInUM).analyze();
-		projectObject.dispose();
+		if(!projectExists) {
+			projectObject.dispose();
+		}
 	}
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
