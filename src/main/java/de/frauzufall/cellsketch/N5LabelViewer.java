@@ -88,10 +88,9 @@ public class N5LabelViewer {
 
 	/**
 	 * Creates a new N5Viewer with the given data sets.
-	 * @param parentFrame parent frame, can be null
 	 * @param dataSelection data sets to display
 	 * @param labelEditorInterface
-	 * @param context
+	 * @param project
 	 * @throws IOException
 	 */
 	public < T extends NumericType< T > & NativeType< T >,
