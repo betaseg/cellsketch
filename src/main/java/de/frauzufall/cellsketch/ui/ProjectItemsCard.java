@@ -328,6 +328,7 @@ public class ProjectItemsCard extends JPanel {
 		private JButton button;
 		private JColorChooser colorChooser;
 		private static final String EDIT = "edit";
+		private DisplayableInBdv item;
 
 		ColorEditor() {
 			button = new JButton();
@@ -363,11 +364,12 @@ public class ProjectItemsCard extends JPanel {
 		}
 
 		public Object getCellEditorValue() {
-			return currentColor;
+			return item;
 		}
 
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-			int color = ((Item) value).getColor();
+			item = (DisplayableInBdv) table.getModel().getValueAt(row, column);
+			int color = item.getColor();
 			currentColor = new Color(color);
 			return button;
 		}
