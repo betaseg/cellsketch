@@ -43,6 +43,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.volatiles.VolatileARGBType;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
+import net.miginfocom.swing.MigLayout;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.bdv.MultiscaleDatasets;
 import org.janelia.saalfeldlab.n5.bdv.N5Source;
@@ -52,10 +53,20 @@ import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalMultichannelMetada
 import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalMultiscaleMetadata;
 import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalSpatialMetadata;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
+import org.scijava.Context;
+import org.scijava.app.StatusService;
+import org.scijava.app.event.StatusEvent;
+import org.scijava.event.EventHandler;
+import org.scijava.plugin.Parameter;
+import org.scijava.ui.DialogPrompt;
+import org.scijava.ui.StatusBar;
+import org.scijava.ui.UIService;
 import sc.fiji.labeleditor.plugin.interfaces.bdv.BdvInterface;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,44 +154,23 @@ public class N5LabelViewer {
 				// Create and show a BdvHandleFrame with the first source
 				BdvStackSource<?> source = BdvFunctions.show(sourcesAndConverter, options);
 				ViewerFrame frame = ((BdvHandleFrame)source.getBdvHandle()).getBigDataViewer().getViewerFrame();
-				frame.addWindowListener(new WindowListener() {
-					@Override
-					public void windowOpened(WindowEvent e) {
-
-					}
-
-					@Override
-					public void windowClosing(WindowEvent e) {
-					}
-
+				frame.addWindowListener(new WindowAdapter() {
 					@Override
 					public void windowClosed(WindowEvent e) {
 						project.dispose();
-					}
-
-					@Override
-					public void windowIconified(WindowEvent e) {
-
-					}
-
-					@Override
-					public void windowDeiconified(WindowEvent e) {
-
-					}
-
-					@Override
-					public void windowActivated(WindowEvent e) {
-
-					}
-
-					@Override
-					public void windowDeactivated(WindowEvent e) {
-
 					}
 				});
 				bdvSources.add(source);
 				bdvHandle = source.getBdvHandle();
 				labelEditorInterface.setup(bdvHandle);
+				SplitPanel splitPanel = frame.getSplitPanel();
+				frame.remove(splitPanel);
+				JPanel newPanel = new JPanel(new MigLayout("fillx"));
+				newPanel.add(splitPanel, "wrap, push, span, grow");
+				newPanel.add(createStatusBar(project.context()), "h 30");
+				frame.setContentPane(newPanel);
+				frame.pack();
+				project.context().service(StatusService.class).showStatus("N5 BigDataViewer initialized");
 			}
 			else {
 				// Subsequent sources are added to the existing handle
@@ -189,6 +179,11 @@ public class N5LabelViewer {
 		}
 		this.bdv = bdvHandle;
 		this.rawSources = bdvSources;
+	}
+
+	private Component createStatusBar(Context context) {
+		SwingStatusBar statusBar = new SwingStatusBar(context);
+		return statusBar;
 	}
 
 	public < T extends NumericType< T > & NativeType< T >,
@@ -459,4 +454,83 @@ public class N5LabelViewer {
 	public List<BdvSource> getSourceSources() {
 		return rawSources;
 	}
+
+	public class SwingStatusBar extends JPanel implements StatusBar {
+		private final JLabel statusText;
+		private final JProgressBar progressBar;
+
+		@Parameter
+		private UIService uiService;
+
+		public SwingStatusBar(Context context) {
+			context.inject(this);
+			this.statusText = new JLabel();
+
+			this.progressBar = new JProgressBar();
+			this.progressBar.setVisible(false);
+			this.setLayout(new MigLayout("hidemode 2", "[][shrink]push"));
+			this.add(this.progressBar, "w 100");
+			this.add(this.statusText, "shrink");
+		}
+
+		public void setStatus(String message) {
+			if (message != null) {
+				String text;
+				if (message.isEmpty()) {
+					text = " ";
+				} else {
+					text = message;
+				}
+
+				this.statusText.setText(truncateLongWords(text));
+				this.statusText.setToolTipText(text);
+			}
+		}
+
+		private String truncateLongWords(String text) {
+			StringBuilder res = new StringBuilder();
+			String[] parts = text.split(" ");
+			int maxlen = 50;
+			for(String part : parts) {
+				if(part.length() > maxlen) {
+					part = part.substring(0, maxlen) + "[..]";
+				}
+				res.append(part + " ");
+			}
+			return res.toString();
+		}
+
+		public void setProgress(int val, int max) {
+			if (max < 0) {
+				this.progressBar.setVisible(false);
+			} else {
+				if (val >= 0 && val < max) {
+					this.progressBar.setValue(val);
+					this.progressBar.setMaximum(max);
+					this.progressBar.setVisible(true);
+				} else {
+					this.progressBar.setVisible(false);
+				}
+
+			}
+		}
+
+		@EventHandler
+		protected void onEvent(StatusEvent event) {
+			if (event.isWarning()) {
+				String message = event.getStatusMessage();
+				if (message != null && !message.isEmpty()) {
+					this.uiService.showDialog(message, DialogPrompt.MessageType.WARNING_MESSAGE);
+				}
+			} else {
+				int val = event.getProgressValue();
+				int max = event.getProgressMaximum();
+				String message = this.uiService.getStatusMessage(event);
+				this.setStatus(message);
+				this.setProgress(val, max);
+			}
+
+		}
+	}
+
 }
