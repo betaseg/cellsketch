@@ -12,6 +12,7 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
+import org.scijava.app.StatusService;
 import org.scijava.table.Table;
 import de.frauzufall.cellsketch.model.ImageFileItem;
 
@@ -23,7 +24,7 @@ public class AnalyzeUtils {
 
 	public static void calculateDistanceTransform(OpService ops, ImageFileItem input, ImageFileItem<FloatType> output, boolean recalculateDistanceMaps) throws IOException {
 		if(output.exists() && !recalculateDistanceMaps) {
-			System.out.println("Not recalculating distance transform map of " + input.getName());
+			ops.context().service(StatusService.class).showStatus("Not recalculating distance transform map of " + input.getName());
 			return;
 		}
 		calculateDistanceTransform(ops, input.getImage(), output);

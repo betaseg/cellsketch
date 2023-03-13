@@ -19,6 +19,7 @@ import org.jdom2.DataConversionException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.scijava.app.StatusService;
 import org.scijava.table.DefaultGenericTable;
 import org.scijava.table.Table;
 
@@ -63,7 +64,7 @@ public class FilamentsAnalyzer {
             List<List<Point>> mts = read(outputYAML);
             writeTables(project, mts, sumTableFile, individualTableFile, pixelToMicroMeters);
         } else {
-            System.out.println("Cannot analyze filaments, label map missing.");
+            project.context().service(StatusService.class).showStatus("Cannot analyze filaments, label map missing.");
         }
     }
 
@@ -189,7 +190,7 @@ public class FilamentsAnalyzer {
         summaryTable.set(getColumnIndex(summaryTable, FilamentsOverviewTable.getMeanTortuosityColumnName()), 0, String.valueOf(new Mean().evaluate(tortuosities)));
         summaryTable.set(getColumnIndex(summaryTable, FilamentsOverviewTable.getStdevTortuosityColumnName()), 0, String.valueOf(new StandardDeviation().evaluate(tortuosities)));
         summaryTable.set(getColumnIndex(summaryTable, FilamentsOverviewTable.getMedianTortuosityColumnName()), 0, String.valueOf(new Median().evaluate(tortuosities)));
-        System.out.println(summaryTable);
+//        System.out.println(summaryTable);
     }
 
     public static List<List<Point>> read(File input) throws FileNotFoundException {

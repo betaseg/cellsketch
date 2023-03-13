@@ -6,6 +6,7 @@ import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5Writer;
 import de.frauzufall.cellsketch.BdvProject;
+import org.scijava.app.StatusService;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class MaskItemGroup extends BdvItemGroup implements HasDistanceMap {
 		N5Writer writer = new N5FSWriter(getConfigPath());
 		writer.setAttribute(File.separator, "connectedToFilamentsThresholdInUM", connectedToFilamentsThresholdInUM);
 		writer.close();
-		System.out.println("written config to " + getConfigPath());
+		project.context().service(StatusService.class).showStatus("written config to " + getConfigPath());
 	}
 
 	protected String getConfigPath() {

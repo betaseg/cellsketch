@@ -11,6 +11,7 @@ import org.janelia.saalfeldlab.n5.N5Writer;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import de.frauzufall.cellsketch.BdvProject;
+import org.scijava.app.StatusService;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,24 +69,24 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 	}
 
 	protected boolean saveImage() throws IOException {
-		System.out.println("Saving loaded " + getName() + " dataset to " + getDefaultFileName() + "..");
+		project().context().service(StatusService.class).showStatus("Saving loaded " + getName() + " dataset to " + getDefaultFileName() + "..");
 		project().writeImage(getDefaultFileName(), getImage(), null, null, this.max);
 		setFile(new File(project().getProjectDir(), getDefaultFileName()));
 		project().updateUI();
-		System.out.println("Successfully saved " + getName() + ".");
+		project().context().service(StatusService.class).showStatus("Successfully saved " + getName() + ".");
 		return true;
 	}
 
 	@Override
 	public void addToBdv() {
 		if(isVisible()) return;
-		System.out.println("add image to bdv: " + getName());
+		project().context().service(StatusService.class).showStatus("Add image to BDV: " + getName());
 		String defaultFileName = this.getDefaultFileName();
 		if(defaultFileName == null) return;
 		DataSelection dataSelection = project().getDataSelection(defaultFileName);
 		if (dataSelection != null) {
 			try {
-				System.out.println("loading " + defaultFileName);
+				project().context().service(StatusService.class).showStatus("Loading " + defaultFileName);
 				project().projectData().put(defaultFileName, dataSelection);
 				List<BdvSource> sources = project().viewer().addData(dataSelection);
 				this.setSources(sources);
@@ -96,6 +97,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 		setVisible(true);
 		updateBdvColor();
 		project().updateUI();
+		project().context().service(StatusService.class).showStatus("Successfully loaded " + defaultFileName);
 	}
 
 	@Override
@@ -126,10 +128,11 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 
 	@Override
 	public void removeFromBdv() {
-		System.out.println("remove from bdv: " + getName());
+		project().context().service(StatusService.class).showStatus("Removing from BDV: " + getName());
 		DisplayableInBdv.super.removeFromBdv();
 		setVisible(false);
 		setImage(null);
+		project().context().service(StatusService.class).showStatus("Removed from BDV: " + getName());
 	}
 
 	@Override

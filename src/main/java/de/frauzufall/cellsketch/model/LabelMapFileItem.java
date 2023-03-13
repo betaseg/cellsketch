@@ -12,6 +12,7 @@ import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.view.Views;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
+import org.scijava.app.StatusService;
 import sc.fiji.labeleditor.core.controller.DefaultInteractiveLabeling;
 import sc.fiji.labeleditor.core.model.DefaultLabelEditorModel;
 import sc.fiji.labeleditor.core.model.LabelEditorModel;
@@ -40,7 +41,7 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 	@Override
 	public void addToBdv() {
 		if(isVisible()) return;
-		System.out.println("add labelmap to bdv: " + getName());
+		project().context().service(StatusService.class).showStatus("Adding labelmap to BDV: " + getName());
 		String defaultFileName = this.getDefaultFileName();
 		if(defaultFileName == null) return;
 		DataSelection dataSelection = project().getDataSelection(getDefaultFileName());

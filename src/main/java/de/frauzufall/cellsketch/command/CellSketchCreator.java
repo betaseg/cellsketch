@@ -5,6 +5,7 @@ import de.frauzufall.cellsketch.CellSketch;
 import net.imglib2.type.numeric.ARGBType;
 import org.kohsuke.args4j.Option;
 import org.scijava.Context;
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -57,7 +58,7 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 
 	@Override
 	public void run() {
-		System.out.println("Creating new project in " + parent + File.separator + projectName + "..");
+		context.service(StatusService.class).showStatus("Creating new project in " + parent + File.separator + projectName + "..");
 		CellProject project = new CellProject(parent, projectName, context);
 		project.setEditable(true);
 		project.getSourceItem().setColor(ARGBType.rgba(130, 130, 130, 255));

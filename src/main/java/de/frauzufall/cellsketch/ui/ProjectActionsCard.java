@@ -19,11 +19,6 @@ import java.util.Map;
 
 public class ProjectActionsCard extends JPanel {
 
-	private final JPopupMenu popup = new JPopupMenu();
-	private final JLabel fish = new JLabel("");
-	private final JTextArea progressText = new JTextArea("");
-	List<String> progresses = new ArrayList<>();
-	private JPanel fishTank;
 	private JPanel buttons;
 
 	public void build(String title, BdvProject project) {
@@ -43,15 +38,10 @@ public class ProjectActionsCard extends JPanel {
 		buttons.add(actionsButton, "push, grow, span, id actions");
 		addBtn(buttons, project, "Analyze", CellSketchAnalyzer.class);
 		add(buttons, "span, grow");
+	}
 
-		fishTank = new JPanel(new MigLayout("ins -50"));
-		fishTank.setBorder(new LineBorder(new Color(0, 0, 20, 20), 50, true));
-		fish.setIcon(new ImageIcon(getClass().getResource("/icons/fish2.gif")));
-		updateStatus();
-		fishTank.add(fish);
-		fishTank.setOpaque(false);
-		add(fishTank, "pos 0.5al 0.5al");
-		this.setComponentZOrder(fishTank, 0);
+	public void setEnabled(boolean enabled) {
+		this.setPanelEnabled(buttons, enabled);
 	}
 
 	void setPanelEnabled(JComponent panel, Boolean isEnabled) {
@@ -63,36 +53,6 @@ public class ProjectActionsCard extends JPanel {
 			}
 			component.setEnabled(isEnabled);
 		}
-	}
-
-	public void updateStatus() {
-		popup.removeAll();
-		setPanelEnabled(buttons, !showProgress());
-		fishTank.setVisible(showProgress());
-		progressText.setVisible(showProgress());
-		StringBuilder text = new StringBuilder();
-		for(String title : progresses) {
-			text.append(title);
-		}
-		progressText.setText(text.toString());
-		fish.updateUI();
-		this.updateUI();
-	}
-
-	private boolean showProgress() {
-		return progresses.size() > 0;
-//		return true;
-	}
-
-	public void addProgress(String title) {
-		System.out.println("adding progress " + title);
-		progresses.add(title);
-		updateStatus();
-	}
-
-	public void removeProgress(String title) {
-		progresses.remove(title);
-		updateStatus();
 	}
 
 	private void addOption(BdvProject project, JPopupMenu popup, String name, Class<? extends Command> commandClass) {

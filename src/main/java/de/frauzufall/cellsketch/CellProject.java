@@ -19,6 +19,7 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5Writer;
 import org.jdom2.DataConversionException;
 import org.scijava.Context;
+import org.scijava.app.StatusService;
 
 import java.io.File;
 import java.io.IOException;
@@ -270,7 +271,7 @@ public class CellProject extends DefaultBdvProject {
 			getFilamentsItems().add(item);
 			getItems().add(item);
 		} else {
-			System.out.println("Not rendering filaments, KNOSSOS file missing.");
+			context().service(StatusService.class).showStatus("Not rendering filaments, KNOSSOS file missing.");
 		}
 	}
 

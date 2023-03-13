@@ -10,6 +10,7 @@ import net.imglib2.type.numeric.integer.IntType;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
+import org.scijava.app.StatusService;
 import org.scijava.table.DefaultGenericTable;
 import org.scijava.table.Table;
 import sc.fiji.labeleditor.core.model.LabelEditorModel;
@@ -46,7 +47,7 @@ public class LabelMapAnalyzer {
 			}
 //			exportMasks();
 		} else {
-			System.out.println("Cannot analyze labels, label map not found.");
+			project.context().service(StatusService.class).showStatus("Cannot analyze labels, label map not found.");
 		}
 	}
 

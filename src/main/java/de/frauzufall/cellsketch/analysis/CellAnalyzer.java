@@ -4,6 +4,7 @@ import de.frauzufall.cellsketch.CellProject;
 import de.frauzufall.cellsketch.model.*;
 import net.imagej.ops.OpService;
 import org.jdom2.DataConversionException;
+import org.scijava.app.StatusService;
 
 import java.io.IOException;
 
@@ -52,10 +53,10 @@ public class CellAnalyzer {
         if(!item.distanceMapSource().exists()) return;
         try {
             if(item.getDistanceMap().exists() && this.skipExistingDistanceMaps) {
-                System.out.println("Not recalculating already existing distance transform map of " + item.getName());
+                project.context().service(StatusService.class).showStatus("Not recalculating already existing distance transform map of " + item.getName());
                 return;
             }
-            System.out.println("Calculating distance transform map of " + item.getName());
+            project.context().service(StatusService.class).showStatus("Calculating distance transform map of " + item.getName());
             AnalyzeUtils.calculateDistanceTransform(ops, item.distanceMapSource(), item.getDistanceMap(), !skipExistingDistanceMaps);
         } catch (IOException e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import de.frauzufall.cellsketch.CellProject;
 import net.imglib2.type.numeric.ARGBType;
 import org.kohsuke.args4j.Option;
 import org.scijava.Context;
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
@@ -59,6 +60,6 @@ public class AddMask extends CommandColoredEntityWithFilamentConnection {
 		Context context = new Context();
 		context.service(CommandService.class).run(this.getClass(), false, command_args).get();
 		context.dispose();
-		System.out.println("Done.");
+		context.service(StatusService.class).showStatus("Done.");
 	}
 }

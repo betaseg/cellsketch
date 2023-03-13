@@ -5,6 +5,7 @@ import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5Writer;
 import de.frauzufall.cellsketch.BdvProject;
+import org.scijava.app.StatusService;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class FileItem extends AbstractItem {
 		N5Writer writer = new N5FSWriter(getConfigPath());
 		writeAttributes(writer);
 		writer.close();
-		System.out.println("written config to " + getConfigPath());
+		project.context().service(StatusService.class).showStatus("written config to " + getConfigPath());
 	}
 
 	protected void writeAttributes(N5Writer writer) throws IOException {}

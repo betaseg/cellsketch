@@ -7,6 +7,7 @@ import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5Writer;
 import de.frauzufall.cellsketch.BdvProject;
+import org.scijava.app.StatusService;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +75,7 @@ public class LabelMapItemGroup<T extends IntegerType<T>> extends BdvItemGroup im
 		}
 		writer.setAttribute(File.separator, "tags", tags);
 		writer.close();
-		System.out.println("written config to " + getConfigPath());
+		project.context().service(StatusService.class).showStatus("written config to " + getConfigPath());
 	}
 
 	private Class asClass(Object className) {

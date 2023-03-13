@@ -5,6 +5,7 @@ import bdv.util.BdvHandle;
 import de.frauzufall.cellsketch.model.*;
 import ij.IJ;
 import ij.ImagePlus;
+import net.imagej.mesh.Triangles;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -21,9 +22,14 @@ import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalMetadataParser;
 import org.janelia.saalfeldlab.n5.metadata.imagej.CosemToImagePlus;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.scijava.Context;
+import org.scijava.app.StatusService;
+import org.scijava.app.event.StatusEvent;
+import org.scijava.event.EventHandler;
+import org.scijava.event.EventService;
 import org.scijava.io.IOService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginService;
+import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import sc.fiji.labeleditor.plugin.interfaces.bdv.BdvInterface;
 import de.frauzufall.cellsketch.ui.ProjectActionsCard;
@@ -54,6 +60,9 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 	@Parameter
 	private Context context;
 
+	@Parameter
+	private EventService eventService;
+
 	private boolean displayAll = false;
 	private final File projectDir;
 	private ProjectItemsCard itemsCard;
@@ -67,12 +76,14 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 	private N5LabelViewer viewer;
 	protected ProjectActionsCard actionsCard;
 	private double pixelToUM;
+	private final List<String> processes = new ArrayList<>();
 
 	public DefaultBdvProject(File parent, String title, Context context) {
 		super(title, false);
 		parent.mkdirs();
 		this.projectDir = new File(parent, title + ".n5");
 		context.inject(this);
+		eventService.subscribe(this);
 	}
 
 	public DefaultBdvProject(File projectDir, Context context) {
@@ -254,11 +265,11 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 
 	@Override
 	public void addImageFile(Path file, String fileName, String type, double scaleX, double scaleY, double scaleZ) throws IOException {
-		System.out.println("Importing dataset " + fileName + " from " + file + "..");
+		context().service(StatusService.class).showStatus("Importing dataset " + fileName + " from " + file + "..");
 		ImagePlus imp = IJ.openImage(file.toAbsolutePath().toString());
 		writeToN5(imp, fileName, type, scaleX, scaleY, scaleZ);
 		imp.close();
-		System.out.println("Successfully imported dataset " + fileName + ".");
+		context().service(StatusService.class).showStatus("Successfully imported dataset " + fileName + ".");
 	}
 
 	@Override
@@ -357,26 +368,38 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		bdvItemGroup.unload();
 	}
 
+	@EventHandler
+	protected void onEvent(StatusEvent event) {
+//		int val = event.getProgressValue();
+//		int max = event.getProgressMaximum();
+		String message = this.uiService.getStatusMessage(event);
+		System.out.println(message);
+	}
+
 	public void endProgress(String progressName) {
-		if(getProgressCard() != null) {
-			removeProgress(progressName);
-		}
+		removeProgress(progressName);
 	}
 
 	public void startProgress(String progressName) {
-		if(getProgressCard() != null) {
-			addProgress(progressName);
-		}
+		addProgress(progressName);
 	}
 
 	public void addProgress(String progressName) {
-		actionsCard.addProgress(progressName);
-		actionsCard.updateStatus();
+		this.processes.add(progressName);
+		if(getProgressCard() != null) {
+			actionsCard.setEnabled(false);
+		}
+		context().service(StatusService.class).showStatus(progressName);
 	}
 
 	public void removeProgress(String progressName) {
-		actionsCard.removeProgress(progressName);
-		actionsCard.updateStatus();
+		this.processes.remove(progressName);
+		if(this.processes.size() == 0) {
+			if(getProgressCard() != null) {
+				actionsCard.setEnabled(true);
+			}
+			context().service(StatusService.class).clearStatus();
+		}
 	}
 
 }
