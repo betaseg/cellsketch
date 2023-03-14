@@ -64,6 +64,7 @@ public class ProjectItemsCard extends JPanel {
 		visibilityColumn.setCellRenderer(new VisibilityButtonRenderer());
 		TableColumn titleColumn = table.getColumnModel().getColumn(TITLE_COL);
 		titleColumn.setCellRenderer(new TitleRenderer());
+		titleColumn.setMaxWidth(Integer.MAX_VALUE);
 		TableColumn colorColumn = table.getColumnModel().getColumn(COLOR_COL);
 		colorColumn.setCellRenderer(new ColorRenderer());
 		colorColumn.setCellEditor(new ColorEditor());

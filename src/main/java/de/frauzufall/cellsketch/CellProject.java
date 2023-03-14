@@ -221,9 +221,9 @@ public class CellProject extends DefaultBdvProject {
 		}
 		group.getMask().setColor(color);
 		group.setConnectedToFilamentsThresholdInUM(connectedToFilamentsThresholdInUM);
-		group.saveConfig();
 		getItems().add(group);
 		maskItems.add(group);
+		configChanged();
 		return group;
 	}
 

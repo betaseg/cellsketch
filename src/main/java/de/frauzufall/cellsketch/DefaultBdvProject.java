@@ -3,9 +3,10 @@ package de.frauzufall.cellsketch;
 import bdv.ui.BdvDefaultCards;
 import bdv.util.BdvHandle;
 import de.frauzufall.cellsketch.model.*;
+import de.frauzufall.cellsketch.ui.ProjectActionsCard;
+import de.frauzufall.cellsketch.ui.ProjectItemsCard;
 import ij.IJ;
 import ij.ImagePlus;
-import net.imagej.mesh.Triangles;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -29,11 +30,8 @@ import org.scijava.event.EventService;
 import org.scijava.io.IOService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginService;
-import org.scijava.ui.DialogPrompt;
 import org.scijava.ui.UIService;
 import sc.fiji.labeleditor.plugin.interfaces.bdv.BdvInterface;
-import de.frauzufall.cellsketch.ui.ProjectActionsCard;
-import de.frauzufall.cellsketch.ui.ProjectItemsCard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,7 +81,6 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		parent.mkdirs();
 		this.projectDir = new File(parent, title + ".n5");
 		context.inject(this);
-		eventService.subscribe(this);
 	}
 
 	public DefaultBdvProject(File projectDir, Context context) {

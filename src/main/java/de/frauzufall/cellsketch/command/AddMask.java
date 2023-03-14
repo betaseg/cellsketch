@@ -33,7 +33,6 @@ public class AddMask extends CommandColoredEntityWithFilamentConnection {
 			if(analyzeConnectionFilamentEnds) threshold = thresholdConnectionFilamentEnds;
 			project.startProgress(progressName);
 			project.addMaskItem(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), threshold, scaleX, scaleY, scaleZ);
-			project.configChanged();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

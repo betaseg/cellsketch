@@ -10,6 +10,7 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.DoubleType;
+import org.scijava.app.StatusService;
 import org.scijava.io.IOService;
 import sc.fiji.labeleditor.core.model.colors.LabelEditorColor;
 import sc.fiji.labeleditor.core.model.colors.LabelEditorValueColor;
@@ -90,7 +91,13 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 
 	public void exportMask() {
 		try {
-			getTagMask();
+			File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getExportName() + ".tif");
+			IOService io = referenceLabelMap.project().context().service(IOService.class);
+			DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
+			RandomAccessibleInterval tagMask = hasTag();
+			exportMask.getParentFile().mkdirs();
+			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
+			io.context().service(StatusService.class).showStatus("Saved mask to " + exportMask.getAbsolutePath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,7 +105,13 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 
 	public void exportInvertedMask() {
 		try {
-			getNoTagMask();
+			File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getInvertedExportName() + ".tif");
+			IOService io = referenceLabelMap.project().context().service(IOService.class);
+			DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
+			RandomAccessibleInterval tagMask = hasNotTag();
+			exportMask.getParentFile().mkdirs();
+			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
+			io.context().service(StatusService.class).showStatus("Saved inverted mask to " + exportMask.getAbsolutePath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -118,34 +131,6 @@ public class LabelTagItem extends AbstractItem implements DisplayableInBdv {
 		int bins = 20;
 		double[] data = PlotUtil.toDoubleArray(referenceTable.getTable().get(referenceColumn));
 		PlotUtil.displayHistogram(data, series, title, xLabel, yLabel, bins);
-	}
-
-	private RandomAccessibleInterval getTagMask() throws IOException {
-		File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getExportName() + ".tif");
-		IOService io = referenceLabelMap.project().context().service(IOService.class);
-		DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
-		if(exportMask.exists()) {
-			return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
-		} else {
-			RandomAccessibleInterval tagMask = hasTag();
-			exportMask.getParentFile().mkdirs();
-			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
-		}
-		return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
-	}
-
-	private RandomAccessibleInterval getNoTagMask() throws IOException {
-		File exportMask = new File(getExportDir(), referenceLabelMap.project().getName() + "_" + getInvertedExportName() + ".tif");
-		IOService io = referenceLabelMap.project().context().service(IOService.class);
-		DatasetService datasetService = referenceLabelMap.project().context().service(DatasetService.class);
-		if(exportMask.exists()) {
-			return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
-		} else {
-			RandomAccessibleInterval tagMask = hasNotTag();
-			exportMask.getParentFile().mkdirs();
-			io.save(datasetService.create(tagMask), exportMask.getAbsolutePath());
-		}
-		return (RandomAccessibleInterval) io.open(exportMask.getAbsolutePath());
 	}
 
 	private String getExportName() {

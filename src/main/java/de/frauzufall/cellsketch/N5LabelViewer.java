@@ -93,10 +93,6 @@ public class N5LabelViewer {
 		return bdv;
 	}
 
-	public SplitPanel getBdvSplitPanel() {
-		return bdv.getSplitPanel();
-	}
-
 	/**
 	 * Creates a new N5Viewer with the given data sets.
 	 * @param dataSelection data sets to display
@@ -163,13 +159,16 @@ public class N5LabelViewer {
 				bdvSources.add(source);
 				bdvHandle = source.getBdvHandle();
 				labelEditorInterface.setup(bdvHandle);
+				frame.getCardPanel().getComponent().setLayout(new MigLayout("fillx", "[grow]"));
+				frame.getCardPanel().getComponent().setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 				SplitPanel splitPanel = frame.getSplitPanel();
-				frame.remove(splitPanel);
+				frame.getContentPane().remove(splitPanel);
 				JPanel newPanel = new JPanel(new MigLayout("fillx"));
+				frame.getContentPane().add(newPanel);
 				newPanel.add(splitPanel, "wrap, push, span, grow");
 				newPanel.add(createStatusBar(project.context()), "h 30");
-				frame.setContentPane(newPanel);
 				frame.pack();
+				frame.getSplitPanel().setCollapsed( true );
 				project.context().service(StatusService.class).showStatus("N5 BigDataViewer initialized");
 			}
 			else {
