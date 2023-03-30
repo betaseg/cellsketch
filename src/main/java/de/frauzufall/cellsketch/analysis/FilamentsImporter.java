@@ -49,15 +49,14 @@ public class FilamentsImporter {
         return this.item.getFilamentsYamlItem();
     }
 
-    public void render() throws IOException {
+    public void render(double radius) throws IOException {
         File outputYAML = new File(project.getProjectDir(), getFilamentsYamlItem().getDefaultFileName());
         File outputIndexImg = new File(project.getProjectDir(), getFilamentsLabelMap().getDefaultFileName());
-        if(!getFilamentsLabelMap().exists()) {
-            RandomAccessibleInterval<IntType> rendering = render(outputYAML, 1);
-            getFilamentsLabelMap().setFile(outputIndexImg);
-            getFilamentsLabelMap().setImage(rendering);
-            getFilamentsLabelMap().save();
-        }
+        RandomAccessibleInterval<IntType> rendering = render(outputYAML, radius);
+        getFilamentsLabelMap().setFile(outputIndexImg);
+        getFilamentsLabelMap().setImage(rendering);
+        getFilamentsLabelMap().save();
+        getFilamentsLabelMap().unload();
     }
 
     private LabelMapFileItem getFilamentsLabelMap() {
@@ -151,7 +150,7 @@ public class FilamentsImporter {
         return output;
     }
 
-    public static RandomAccessibleInterval<IntType> render(File input, int radius) throws FileNotFoundException, JSONException {
+    public static RandomAccessibleInterval<IntType> render(File input, double radius) throws FileNotFoundException, JSONException {
         JSONTokener tokener = new JSONTokener(new FileReader(input));
         JSONObject root = new JSONObject(tokener);
         JSONArray dimensions = (JSONArray) root.get("dimensions");
@@ -175,7 +174,7 @@ public class FilamentsImporter {
         return output;
     }
 
-    private static void drawLine(RandomAccessibleInterval<IntType> output, JSONArray first, JSONArray point, int radius, int i) throws JSONException {
+    private static void drawLine(RandomAccessibleInterval<IntType> output, JSONArray first, JSONArray point, double radius, int i) throws JSONException {
         Point point1 = new Point(first.getLong(0), first.getLong(1), first.getLong(2));
         Point point2 = new Point(point.getLong(0), point.getLong(1), point.getLong(2));
         NMLReader.drawLine(output, point1, point2, radius, i);

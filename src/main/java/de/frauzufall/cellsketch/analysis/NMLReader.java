@@ -235,7 +235,7 @@ public class NMLReader {
 		return node.stream().filter(el -> el.getAttribute("id").getValue().equals(source.getValue())).findFirst();
 	}
 
-	public static void drawLine(RandomAccessibleInterval image, Point p1, Point p2, int radius, int val) {
+	public static void drawLine(RandomAccessibleInterval image, Point p1, Point p2, double radius, int val) {
 		long dx, dy, dz;
 		int i;
 		long l;
@@ -325,10 +325,10 @@ public class NMLReader {
 		drawPoint(image, point, radius, val);
 	}
 
-	public static void drawPoint(RandomAccessibleInterval image, long[] point, int radius, int val) {
+	public static void drawPoint(RandomAccessibleInterval image, long[] point, double radius, int val) {
 		RandomAccess<RealType<?>> ra = image.randomAccess();
 		ra.setPosition(point);
-		HyperSphere<RealType<?>> hyperSphere = new HyperSphere<>(image, ra, radius);
+		HyperSphere<RealType<?>> hyperSphere = new HyperSphere<>(image, ra, Math.max(1, Math.round(radius)));
 		try {
 			for (RealType<?> value : hyperSphere) value.setReal(val);
 		}

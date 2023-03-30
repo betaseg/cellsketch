@@ -21,6 +21,10 @@ import java.util.concurrent.ExecutionException;
 		menuPath = "Analyze>" + CellProject.appName + ">Add filaments from KNOSSOS", headless = true)
 public class AddFilamentsFromKNOSSOS extends CommandColoredEntity {
 
+	@Parameter(label = "Filaments radius in μm", stepSize="0.0001", required = false)
+	@Option(name = "--radius")
+	private double radius = 0.025/2.;
+
 	@Parameter(label = "Filaments KNOSSOS file", required = false)
 	@Option(name = "--input")
 	private File input;
@@ -31,10 +35,10 @@ public class AddFilamentsFromKNOSSOS extends CommandColoredEntity {
 	@Override
 	public void run() {
 		CellProject project = getOrLoadCellProject();
-		String progressName = "Adding boundary from " + input;
+		String progressName = "Adding filaments from " + input;
 		try {
 			project.startProgress(progressName);
-			project.addFilamentsFromKNOSSOS(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), scaleX, scaleY, scaleZ);
+			project.addFilamentsFromKNOSSOS(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), scaleX, scaleY, scaleZ, radius);
 			project.configChanged();
 		} catch (IOException | NMLReader.NMLReaderIOException | DataConversionException e) {
 			e.printStackTrace();

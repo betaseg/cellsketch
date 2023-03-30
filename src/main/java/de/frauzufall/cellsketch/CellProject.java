@@ -249,13 +249,13 @@ public class CellProject extends DefaultBdvProject {
 		getItems().add(group);
 	}
 
-	public void addFilamentsFromKNOSSOS(File input, String name, int color, double scaleX, double scaleY, double scaleZ) throws IOException, NMLReader.NMLReaderIOException, DataConversionException {
+	public void addFilamentsFromKNOSSOS(File input, String name, int color, double scaleX, double scaleY, double scaleZ, double radius_in_um) throws IOException, NMLReader.NMLReaderIOException, DataConversionException {
 		if(input != null && input.exists()) {
 			String defaultFileName = getDefaultFileName(toFileName(name));
 			FilamentsItemGroup item = new FilamentsItemGroup(this, name, defaultFileName + ".yml", defaultFileName);
 			FilamentsImporter importer = new FilamentsImporter(this, item);
 			importer.processKnossosFilaments(input, scaleX, scaleY, scaleZ);
-			importer.render();
+			importer.render(radius_in_um * (1./this.getPixelToUM()));
 			item.getLabelMap().setColor(color);
 
 			item.getTagLength().setColorForMaxValues(false);
