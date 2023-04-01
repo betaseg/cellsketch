@@ -213,7 +213,7 @@ Import your meshes into Blender via GUI by using the search bar or scrolling to 
 
 Alternatively, run the following command from the commandline:
 ```
-album run de.mdc-berlin:cellsketch-mesh-render:0.1.0 --project MY_PROJECT.n5
+album run de.mdc-berlin:cellsketch-mesh-render:0.1.0 --project MY_PROJECT.n5 --output_blend MY_PROJECT.blend
 ```
 ![Rendering CellSketch meshes in Blender](doc/cellsketch-mesh-blender.png)
 
