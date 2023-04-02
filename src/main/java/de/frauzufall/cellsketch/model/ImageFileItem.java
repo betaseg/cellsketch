@@ -145,7 +145,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 	public void updateBdvColor() {
 		getSources().forEach(bdvSource -> bdvSource.setColor(new ARGBType(getColor())));
 		if(max != null) {
-			getSources().forEach(bdvSource -> bdvSource.setDisplayRange(min, max));
+			getSources().forEach(bdvSource -> bdvSource.setDisplayRange(min == null? 0 : min, max));
 		}
 	}
 
