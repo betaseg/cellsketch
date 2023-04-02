@@ -65,9 +65,10 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 		context.service(StatusService.class).showStatus("Creating new project in " + parent + File.separator + projectName + "..");
 		CellProject project = new CellProject(parent, projectName, context);
 		project.setEditable(true);
-		project.getSourceItem().setColor(ARGBType.rgba(130, 130, 130, 255));
 		project.create(input, pixelToUM, scaleX, scaleY, scaleZ);
 		try {
+			project.getSourceItem().loadConfig();
+			project.getSourceItem().setColor(ARGBType.rgba(130, 130, 130, 255));
 			project.saveConfig();
 		} catch (IOException e) {
 			e.printStackTrace();

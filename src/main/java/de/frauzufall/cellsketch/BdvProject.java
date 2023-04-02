@@ -23,7 +23,7 @@ public interface BdvProject extends Project, Disposable {
 
     String getDefaultFileName(String name);
 
-    void writeImage(String raw_name, RandomAccessibleInterval img, N5CosemMetadataParser metaWriter, N5CosemMetadata metadata, Double max) throws IOException;
+    void writeImage(String raw_name, RandomAccessibleInterval img, N5CosemMetadataParser metaWriter, N5CosemMetadata metadata, Double min, Double max) throws IOException;
     DataSelection getDataSelection(String name);
 	Map<String, Object> projectData();
 	N5LabelViewer viewer();

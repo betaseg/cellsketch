@@ -302,13 +302,14 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		N5CosemMetadataParser metaWriter = new N5CosemMetadataParser();
 		CosemToImagePlus metadata2IJ = new CosemToImagePlus();
 		final N5CosemMetadata metadata = metadata2IJ.readMetadata(imp);
-		double max = imp.getStatistics().max;
+		double max = metadata.maxIntensity();
+		double min = metadata.minIntensity();
 		// NOTE not using the imp metadata because we scale the image and that messes with the correctness of the metadata
-		writeImage(raw_name, rai, null, null, max);
+		writeImage(raw_name, rai, null, null, min, max);
 
 	}
 
-	public void writeImage(String raw_name, RandomAccessibleInterval img, N5CosemMetadataParser metaWriter, N5CosemMetadata metadata, Double max) throws IOException {
+	public void writeImage(String raw_name, RandomAccessibleInterval img, N5CosemMetadataParser metaWriter, N5CosemMetadata metadata, Double min, Double max) throws IOException {
 		int[] blocksize = new int[]{64,64,64};
 		N5Writer writer = new N5FSWriter(projectDir.getAbsolutePath());
 		N5Utils.save(img, writer, raw_name, blocksize, new RawCompression());
@@ -320,7 +321,8 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 			}
 		}
 		if(max != null) {
-			writer.setAttribute(raw_name, "bounds", new double[]{0, max});
+			writer.setAttribute(raw_name, "max", max);
+			writer.setAttribute(raw_name, "min", min);
 		}
 		writer.close();
 	}

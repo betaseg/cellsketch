@@ -24,6 +24,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 	private List<BdvSource> sources = new ArrayList<>();
 	private boolean visible = false;
 	protected Double max;
+	protected Double min;
 
 	public ImageFileItem(BdvProject app, String defaultFileName, boolean deletable) {
 		super(app, defaultFileName, deletable);
@@ -70,7 +71,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 
 	protected boolean saveImage() throws IOException {
 		project().context().service(StatusService.class).showStatus("Saving loaded " + getName() + " dataset to " + getDefaultFileName() + "..");
-		project().writeImage(getDefaultFileName(), getImage(), null, null, this.max);
+		project().writeImage(getDefaultFileName(), getImage(), null, null, this.min, this.max);
 		setFile(new File(project().getProjectDir(), getDefaultFileName()));
 		project().updateUI();
 		project().context().service(StatusService.class).showStatus("Successfully saved " + getName() + ".");
@@ -144,7 +145,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 	public void updateBdvColor() {
 		getSources().forEach(bdvSource -> bdvSource.setColor(new ARGBType(getColor())));
 		if(max != null) {
-			getSources().forEach(bdvSource -> bdvSource.setDisplayRange(0, max));
+			getSources().forEach(bdvSource -> bdvSource.setDisplayRange(min, max));
 		}
 	}
 
@@ -155,6 +156,8 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 			if(color != null) setColor(color);
 			Double max = reader.getAttribute(File.separator, "max", Double.class);
 			if(max != null) setMaxValue(max);
+			Double min = reader.getAttribute(File.separator, "min", Double.class);
+			if(min != null) this.min = min; else this.min = (double) 0;
 		}
 	}
 
@@ -162,6 +165,7 @@ public class ImageFileItem<T extends NumericType<T>> extends FileItem implements
 	protected void writeAttributes(N5Writer writer) throws IOException {
 		writer.setAttribute(File.separator, "color", getColor());
 		writer.setAttribute(File.separator, "max", max);
+		writer.setAttribute(File.separator, "min", min);
 	}
 
 	public void setMaxValue(double max) {
