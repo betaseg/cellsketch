@@ -34,6 +34,10 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 	@Option(name = "--input")
 	private File input;
 
+	@Parameter(label = "Headless")
+	@Option(name = "--headless")
+	private boolean headless = false;
+
 	@Parameter(label = "Scale factor X for input dataset", stepSize="0.0001")
 	@Option(name = "--scale_x")
 	protected double scaleX = 1;
@@ -88,8 +92,15 @@ public class CellSketchCreator extends CommandWithCmdLineParser {
 		command_args.put("scaleX", this.scaleX);
 		command_args.put("scaleY", this.scaleY);
 		command_args.put("scaleZ", this.scaleZ);
+		command_args.put("headless", this.headless);
 		CellSketch cellSketch = new CellSketch();
-		cellSketch.ui().showUI();
+		if(!headless) {
+			cellSketch.ui().showUI();
+		}
+		cellSketch.ui().setHeadless(headless);
 		cellSketch.command().run(this.getClass(), true, command_args).get();
+		if(headless) {
+			cellSketch.dispose();
+		}
 	}
 }
