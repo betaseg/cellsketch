@@ -36,6 +36,7 @@ album install de.mdc-berlin:cellsketch-create:0.1.0
 album install de.mdc-berlin:cellsketch-add-mask:0.1.0
 album install de.mdc-berlin:cellsketch-mesh-export:0.1.0
 album install de.mdc-berlin:cellsketch-mesh-render:0.1.0
+album install de.mdc-berlin:launch-blender:0.1.0
 ```
 
 ### Creating a CellSketch project
