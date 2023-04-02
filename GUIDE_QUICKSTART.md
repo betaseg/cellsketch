@@ -55,7 +55,7 @@ A new folder `MY_PARENT_FOLDER/MY_PROJECT.n5` will be created. Please don't rena
 
 ### Add masks to the project
 ```
-**album run de.mdc-berlin:cellsketch-add-mask:0.1.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria**
+album run de.mdc-berlin:cellsketch-add-mask:0.1.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria**
 ```
 Provide your `MY_PROJECT.n5` directory from the previous step as the project input parameter and the mask you want to add as input, together with a representative name.
 
