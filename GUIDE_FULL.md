@@ -14,14 +14,14 @@ Install Album by following the instructions [here](https://docs.album.solutions/
 
 You can run the CellSketch solutions via command line or via graphical user interface (GUI).
 
-### Add the Helmholtz Imaging Development Catalog
+### Add the Betaseg Project Catalog
 
 Via commandline call
 ```
-album add-catalog https://gitlab.com/album-app/catalogs/helmholtz-imaging
+album add-catalog https://github.com/betaseg/solutions
 ```
 
-Via GUI first launch Album. The installer of Album should have created a launcher for you, either on your desktop or in your list of applications. In the interface, click on `catalogs` in the bottom left corner, then click `Add catalog`. Enter the following URL: `https://gitlab.com/album-app/catalogs/helmholtz-imaging` and confirm.
+Via GUI first launch Album. The installer of Album should have created a launcher for you, either on your desktop or in your list of applications. In the interface, click on `catalogs` in the bottom left corner, then click `Add catalog`. Enter the following URL: `https://github.com/betaseg/solutions` and confirm.
 
 ### Install CellSketch solutions
 
@@ -31,14 +31,14 @@ Via GUI, when running a solution which is not installed yet, it will ask you to 
 
 Via commandline install all CellSketch solutions by running the following commands:
 ```
-album install de.mdc-berlin:cellsketch-create:0.1.0
-album install de.mdc-berlin:cellsketch-view:0.1.0
-album install de.mdc-berlin:cellsketch-analyze:0.1.0
-album install de.mdc-berlin:cellsketch-plot:0.1.0
-album install de.mdc-berlin:cellsketch-mesh-export:0.1.0
-album install de.mdc-berlin:cellsketch-mesh-view:0.1.0
-album install de.mdc-berlin:cellsketch-mesh-render:0.1.0
-album install de.mdc-berlin:launch-blender:0.1.0
+album install io.github.betaseg:cellsketch-create-project:0.1.0
+album install io.github.betaseg:cellsketch-pixel-view:0.1.0
+album install io.github.betaseg:cellsketch-analyze:0.1.0
+album install io.github.betaseg:cellsketch-plot:0.1.0
+album install io.github.betaseg:cellsketch-mesh-export:0.1.0
+album install io.github.betaseg:cellsketch-mesh-view:0.1.0
+album install io.github.betaseg:cellsketch-to-blender:0.1.0
+album install io.github.betaseg:launch-blender:0.1.0
 ```
 
 ## CellSketch routines
@@ -54,6 +54,14 @@ We provide a test dataset:
 Important note: The GUI is quite fresh and in an early stage. Be aware that processes launched from the GUI don't have a way of being canceled yet - you have to cancel them based on available methods for killing processes on your operating system.
 
 ### Creating a CellSketch project
+
+In the GUI, after launching Album use the search bar or scroll through your list of solutions to find and run the `CellSketch: Create new project` solution.
+
+Alternatively, run the solution via commandline:
+```
+album run io.github.betaseg:cellsketch-create-project:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --scale_z 1.5
+```
+
 Creating a new CellSketch project requires the following parameters:
 
 Mandatory parameters:
@@ -65,13 +73,6 @@ Mandatory parameters:
 Optional parameters:
 - `scale_z`: Since spatial analysis and visualization is performed, we are first making sure our imported datasets are isotropic. In case they are not, you can use this parameter to provide a scale factor for the Z axis - the dataset will be rescaled in this case.
 
-In the GUI, after launching Album use the search bar or scroll through your list of solutions to find and run the `CellSketch: Create new project` solution.
-
-Alternatively, run the solution via commandline:
-```
-album run de.mdc-berlin:cellsketch-create:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --scale_z 1.5
-```
-
 A new folder `MY_PARENT_FOLDER/MY_PROJECT.n5` will be created. Please don't rename it.
 
 ### Displaying the project in BigDataViewer and adding labels and masks
@@ -80,7 +81,7 @@ Via GUI you can display your CellSketch project by using the search bar or scrol
 
 Alternatively, run the following command from the commandline:
 ```
-album run de.mdc-berlin:cellsketch-view:0.1.0 --project MY_PROJECT.n5
+album run io.github.betaseg:cellsketch-pixel-view:0.1.0 --project MY_PROJECT.n5
 ```
 Provide the newly created `MY_PROJECT.n5` directory from the previous step as the project input parameter.
 
@@ -112,19 +113,19 @@ To **delete an imported dataset**, click on the three dots next to the bold name
 
 Spatial analysis can be performed by directly clicking the `Analyze` button in the right sidepanel of the viewer, however we highly advise running this separately without the viewer being opened. The analysis can be quite memory consuming. 
 
+Run spatial analysis for your CellSketch project via GUI by using the search bar or scrolling to the solution called `CellSketch: Run spatial analysis`.
+
+Alternatively, run the following command from the commandline (exemplary parameter values):
+```
+album run io.github.betaseg:cellsketch-analyze:0.1.0 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
+```
+
 Mandatory parameters:
 - `project`: Your CellSketch project, the directory ending with `.n5`.
 - `connected_threshold_in_um`: When analyzing how close two organelles need to be in order to be counted as connected, this is the threshold, provided in micrometers.
 
 Optional parameters:
 - `skip_existing_distance_maps`: Distance maps are most memory expensive to compute - in case the analysis process crashes because of memory issues, you can run the process again with this option checked. It will not recompute already computed distance maps. This has to be unchecked whenever you delete and reimport an existing dataset.
-
-Run spatial analysis for your CellSketch project via GUI by using the search bar or scrolling to the solution called `CellSketch: Run spatial analysis`.
-
-Alternatively, run the following command from the commandline (exemplary parameter values):
-```
-album run de.mdc-berlin:cellsketch-analyze:0.1.0 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
-```
 
 All results of the analysis are stored into `MY_PROJECT.n5/analysis`. It will perform the following steps:
 
@@ -143,24 +144,31 @@ We provide a [notebook](https://github.com/betaseg/protocol-notebooks/blob/main/
 
 You can clone the notebook with git and run it yourself, or you can use Album tun run the notebook automatically in the correct environment.  
 
-Mandatory parameters:
-- `project`: Your CellSketch project, the directory ending with `.n5`.
-- `output`: The directory where plots generated in the notebook will be saved to. This will also contain a copy of the notebook which can be further adjusted to generate more plots or to adjust the plots to a specific project.
-
 Run the notebook via GUI by using the search bar or scrolling to the solution called `CellSketch: Plot analysis results`.
 
 Alternatively, run the following command from the commandline:
 ```
-album run de.mdc-berlin:cellsketch-plot:0.1.0 --project MY_PROJECT.n5 --output PLOT_OUTPUT_DIR
+album run io.github.betaseg:cellsketch-plot:0.1.0 --project MY_PROJECT.n5 --output PLOT_OUTPUT_DIR
 ```
+
+Mandatory parameters:
+- `project`: Your CellSketch project, the directory ending with `.n5`.
+- `output`: The directory where plots generated in the notebook will be saved to. This will also contain a copy of the notebook which can be further adjusted to generate more plots or to adjust the plots to a specific project.
 
 When running this command for the first time, the provided exemplary notebook will be executed and a copy of the notebook, including the result of the execution, will be stored in `PLOT_OUTPUT_DIR`. Afterwards and when running the solution with an output directory which already contains the notebook, the solution will initiate a new jupyter notebook session and open the browser with the output jupyter interface where one can click on `plots.ipynb` to adjust the notebook.
 
-If the project has different cell component names than the exemplary dataset, the notebook will include messages that an exception occurred. Please adjust the code in the notebook to generate plots based on the naming of the cell components in your project.
+The notebook is generating plots based on the datasets added to the projects programmatically, but it also includes a custom example accessing the analysis results of specific organelles explicitly. If the project has different cell component names than the exemplary dataset, this example will fail and the notebook will include messages that an exception occurred. Please adjust the code in the notebook to generate plots based on the naming of the cell components in your project or delete the last cell.
 
 ### Exporting meshes for all masks and labelmaps
 
 In order to render a cell in 3D, tools like Blender need mesh representations of your data. You can convert all or a subset of your masks and labels of your CellSketch project into meshes with one solution.
+
+Run the export via GUI by using the search bar or scrolling to the solution called `CellSketch: Export masks and labelmaps as meshes`.
+
+Alternatively, run the following command from the commandline:
+```
+album run io.github.betaseg:cellsketch-mesh-export:0.1.0 --project MY_PROJECT.n5
+```
 
 Mandatory parameters:
 - `project`: Your CellSketch project, the directory ending with `.n5`.
@@ -172,12 +180,6 @@ Optional parameters:
 
 ![The CellSketch Viewer showing analysis results](doc/cellsketch-mesh-export.png)
 
-Run the export via GUI by using the search bar or scrolling to the solution called `CellSketch: Export masks and labelmaps as meshes`.
-
-Alternatively, run the following command from the commandline:
-```
-album run de.mdc-berlin:cellsketch-mesh-export:0.1.0 --project MY_PROJECT.n5
-```
 
 ### Displaying meshes in VTK
 This step provides the same VTK display of the exported meshes as the previous step when `headless` is set to `False`. 
@@ -186,16 +188,23 @@ Run the export via GUI by using the search bar or scrolling to the solution call
 
 Alternatively, run the following command from the commandline:
 ```
-album run de.mdc-berlin:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
+album run io.github.betaseg:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
 ```
 
 ![The CellSketch Viewer showing analysis results](doc/cellsketch-mesh-view.png)
 
 The colors of the meshes are the same which were chosen in the CellSketch Viewer - you can adjust the colors in the CellSketch Viewer and the meshes will also appear in VTK in the new colors. In order to also get the same colors in the next step when rendering the meshes with Blender, the meshes need to be exported again in the current version after changing the colors in the CellSketch Viewer.  
 
-### Rendering meshes with Blender
+### Creating new Blender scene from meshes
 
 All exported meshes can automatically be imported into Blender with the assigned colors to render them with advanced texture and lighting simulations. 
+
+Import your meshes into Blender via GUI by using the search bar or scrolling to the solution called `CellSketch: Generate Blender scene from mesh files`.
+
+Alternatively, run the following command from the commandline:
+```
+album run io.github.betaseg:cellsketch-to-blender:0.1.0 --project MY_PROJECT.n5 --output_blend MY_PROJECT.blend
+```
 
 Mandatory parameters:
 - `project`: Your CellSketch project, the directory ending with `.n5`.
@@ -209,12 +218,6 @@ Mandatory parameters:
 - `exclude`: If this parameter is provided, components containing this string in their name will not be imported into Blender. Multiple exclusion strings can be provided by separating them by comma.
 - `headless`: This is set to `False` by default, which means the Blender scene will be displayed while importing the meshes. Be aware that the window will be frozen during this process. Set this to `True` to run the process in the background.
 
-Import your meshes into Blender via GUI by using the search bar or scrolling to the solution called `CellSketch: Generate Blender scene from mesh files`.
-
-Alternatively, run the following command from the commandline:
-```
-album run de.mdc-berlin:cellsketch-mesh-render:0.1.0 --project MY_PROJECT.n5 --output_blend MY_PROJECT.blend
-```
 ![Rendering CellSketch meshes in Blender](doc/cellsketch-mesh-blender.png)
 
 You can now open the Blender project stored at `output_blend` with Blender - either you already have Blender installed, then just open it there, or use the Album solution:
@@ -223,7 +226,7 @@ Run Blender via GUI by using the search bar or scrolling to the solution called 
 
 Alternatively, run the following command from the commandline:
 ```
-album run de.mdc-berlin:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend
+album run io.github.betaseg:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend
 ```
 
 The color of the material of each object can be changed in the `Shading` section in the lower part of the user interface.
