@@ -7,6 +7,7 @@ import de.frauzufall.cellsketch.ui.ProjectActionsCard;
 import de.frauzufall.cellsketch.ui.ProjectItemsCard;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.process.ImageStatistics;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -20,7 +21,6 @@ import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.metadata.*;
 import org.janelia.saalfeldlab.n5.metadata.canonical.CanonicalMetadataParser;
-import org.janelia.saalfeldlab.n5.metadata.imagej.CosemToImagePlus;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.scijava.Context;
 import org.scijava.app.StatusService;
@@ -299,13 +299,8 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 		}
 		InterpolatorFactory interpolator = new NearestNeighborInterpolatorFactory();
 		RandomAccessibleInterval rai = context.service(OpService.class).transform().scaleView(img, new double[]{scaleX, scaleY, scaleZ}, interpolator);
-		N5CosemMetadataParser metaWriter = new N5CosemMetadataParser();
-		CosemToImagePlus metadata2IJ = new CosemToImagePlus();
-		final N5CosemMetadata metadata = metadata2IJ.readMetadata(imp);
-		double max = metadata.maxIntensity();
-		double min = metadata.minIntensity();
-		// NOTE not using the imp metadata because we scale the image and that messes with the correctness of the metadata
-		writeImage(raw_name, rai, null, null, min, max);
+		ImageStatistics statistics = imp.getStatistics();
+		writeImage(raw_name, rai, null, null, statistics.min, statistics.max);
 
 	}
 
