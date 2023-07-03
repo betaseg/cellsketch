@@ -25,7 +25,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const previousVersion = releases[0].tag_name;
+            const previousVersion = releases.length > 0 ? releases[0].tag_name : "0.0.0";
             return previousVersion;
 
       - name: Extract current version
