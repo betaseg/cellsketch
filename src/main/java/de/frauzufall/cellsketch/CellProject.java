@@ -3,16 +3,7 @@ package de.frauzufall.cellsketch;
 import de.frauzufall.cellsketch.analysis.FilamentsImporter;
 import de.frauzufall.cellsketch.analysis.NMLReader;
 import de.frauzufall.cellsketch.model.*;
-import net.imagej.ops.OpService;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converters;
-import net.imglib2.img.Img;
-import net.imglib2.roi.boundary.Boundary;
-import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.ByteType;
-import net.imglib2.view.Views;
 import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Reader;
@@ -35,7 +26,7 @@ public class CellProject extends DefaultBdvProject {
 	private final String configKeyLabelMaps = "labelmaps";
 	private final String configKeyFilaments = "filaments";
 	private final String configKeyCellBounds = "cellbounds";
-	private MaskFileItem cellBoundsItem;
+	private MaskItemGroup cellBoundsItem;
 
 	public CellProject(File projectDir, String name, Context context) {
 		super(projectDir, name, context);
@@ -56,6 +47,9 @@ public class CellProject extends DefaultBdvProject {
 	@Override
 	public boolean load() throws IOException {
 		loadConfig();
+		if(cellBoundsItem != null && cellBoundsItem.exists() && !getItems().contains(cellBoundsItem)) {
+			getItems().add(cellBoundsItem);
+		}
 		getSourceItem().load();
 		return true;
 	}
@@ -114,10 +108,16 @@ public class CellProject extends DefaultBdvProject {
 	}
 
 	private void loadCellBounds(N5Reader reader) throws IOException {
-		String cellBounds = reader.getAttribute(File.separator, configKeyCellBounds, String.class);
+		Map<String, String> cellBounds = reader.getAttribute(File.separator, configKeyCellBounds, HashMap.class);
 		if(cellBounds != null) {
-			this.cellBoundsItem = new MaskFileItem(this, getDefaultFileName(toFileName(cellBounds)), true);
-			this.cellBoundsItem.loadConfig();
+			for (Map.Entry<String, String> entry : cellBounds.entrySet()) {
+				String name = entry.getKey();
+				String path = entry.getValue();
+				MaskItemGroup group = new MaskItemGroup(this, name, path);
+				group.loadConfig();
+				getItems().add(group);
+				this.cellBoundsItem = group;
+			}
 		}
 	}
 
@@ -128,6 +128,7 @@ public class CellProject extends DefaultBdvProject {
 		Map<String, String> masks = new HashMap<>();
 		Map<String, String> labelmaps = new HashMap<>();
 		Map<String, String> filaments = new HashMap<>();
+		Map<String, String> cellBounds = new HashMap<>();
 		for (MaskItemGroup maskItem : getMaskItems()) {
 			masks.put(maskItem.getName(), maskItem.getMask().getDefaultFileName());
 		}
@@ -140,17 +141,20 @@ public class CellProject extends DefaultBdvProject {
 		writer.setAttribute(File.separator, configKeyMasks, masks);
 		writer.setAttribute(File.separator, configKeyLabelMaps, labelmaps);
 		writer.setAttribute(File.separator, configKeyFilaments, filaments);
-		if(cellBoundsItem != null) writer.setAttribute(File.separator, configKeyCellBounds, cellBoundsItem.getName());
+		if(cellBoundsItem != null) {
+			cellBounds.put(cellBoundsItem.getName(), cellBoundsItem.getMask().getDefaultFileName());
+			writer.setAttribute(File.separator, configKeyCellBounds, cellBounds);
+		}
 		writer.close();
 	}
 
 	@Override
 	public void deleteFileItem(FileItem item) throws IOException {
 		super.deleteFileItem(item);
-		if(getLabelMapItems().contains(item)) getLabelMapItems().remove(item);
-		if(getMaskItems().contains(item)) getMaskItems().remove(item);
-		if(getFilamentsItems().contains(item)) getFilamentsItems().remove(item);
-		if(cellBoundsItem == item) cellBoundsItem = null;
+		getLabelMapItems().remove(item);
+		getMaskItems().remove(item);
+		getFilamentsItems().remove(item);
+		if(cellBoundsItem.equals(item)) cellBoundsItem = null;
 		configChanged();
 	}
 
@@ -182,36 +186,6 @@ public class CellProject extends DefaultBdvProject {
 		return maskItems;
 	}
 
-//	private void setupColors() {
-////		microtubulesLabelMapItem.setDefaultColor(ARGBType.rgba(255, 200, 0, 255));
-////		granulesLabelMapItem.setDefaultColor(ARGBType.rgba(100, 100, 100, 100));
-//
-//		sourceItem.setColor(ARGBType.rgba(130, 130, 130, 255));
-//
-//		granulesMembraneRelationItem.setColor(ARGBType.rgba(255, 191, 178, 255));
-//		granulesMembraneRelationItem.setColorForMaxValues(false);
-//		granulesMembraneRelationItem.setMinValue(0);
-//		granulesMembraneRelationItem.setMaxValue(3.5);
-//
-//		connectedGranulesItem.setColor(ARGBType.rgba(166, 253, 167, 200));
-//
-//		microtubulesGranulesRelationItem.setColor(ARGBType.rgba(153, 138, 162, 200));
-//		microtubulesGranulesRelationItem.setColorForMaxValues(false);
-//		microtubulesGranulesRelationItem.setMinValue(0);
-//		microtubulesGranulesRelationItem.setMaxValue(1);
-//
-//		membraneFullMaskItem.setColor(ARGBType.rgba(55, 55, 55, 155));
-//
-//		membraneDistanceTransformItem.setMaxValue(100);
-//		microtubulesDistanceMapItem.setMaxValue(30);
-//		nucleusDistanceTransformItem.setMaxValue(100);
-//
-//		golgiDistanceTransformItem.setColor(ARGBType.rgba(90, 220, 177, 150));
-//
-//		connectedMTCentriolesItem.setColor(ARGBType.rgba(255, 153, 0, 255));
-//		connectedMTGolgiItem.setColor(ARGBType.rgba(255, 255, 0, 255));
-//	}
-
 	public MaskItemGroup addMaskItem(File input, String name, int color, Double connectedToFilamentsThresholdInUM, double scaleX, double scaleY, double scaleZ) throws IOException {
 		MaskItemGroup group = new MaskItemGroup(this, name, getDefaultFileName(toFileName(name)));
 		if (input != null && input.exists()) {
@@ -235,17 +209,13 @@ public class CellProject extends DefaultBdvProject {
 			item.setFile(new File(getProjectDir(), item.getDefaultFileName()));
 			updateUI();
 		}
-
 		else return;
 		item.setColor(color);
 		item.setName(name);
-		this.cellBoundsItem = item;
-		String borderName = name + " border";
-		MaskItemGroup group = new MaskItemGroup(this, borderName, getDefaultFileName(toFileName(borderName)));
-		calculateBoundary(item, group.getMask());
+		MaskItemGroup group = new MaskItemGroup(this, name, getDefaultFileName(toFileName(name)));
 		group.setConnectedToFilamentsThresholdInUM(connectedToFilamentsThresholdInUM);
 		group.saveConfig();
-		maskItems.add(group);
+		this.cellBoundsItem = group;
 		getItems().add(group);
 	}
 
@@ -293,17 +263,7 @@ public class CellProject extends DefaultBdvProject {
 		return name.toLowerCase(Locale.ROOT).replace(" ", "_");
 	}
 
-	private void calculateBoundary(MaskFileItem input, MaskFileItem output) {
-		output.setImage(boundary(input.getImage()));
-		try {
-			output.save();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private <T extends RealType<T>> Img<ByteType> boundary(RandomAccessibleInterval<T> image) {
-		RandomAccessibleInterval<BoolType> res = Converters.convert(image, (input, output) -> output.set(input.getRealFloat() > 0), new BoolType());
-		return context().service(OpService.class).convert().int8(Converters.convert(Views.iterable(new Boundary<>(res)), (input, output) -> output.set((byte) (input.get()? 255 : 0)), new ByteType()));
+	public MaskItemGroup getBoundary() {
+		return cellBoundsItem;
 	}
 }

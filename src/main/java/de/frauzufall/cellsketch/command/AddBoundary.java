@@ -8,6 +8,7 @@ import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.util.ColorRGBA;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class AddBoundary extends CommandColoredEntityWithFilamentConnection {
 			Double threshold = null;
 			project.startProgress(progressName);
 			if(analyzeConnectionFilamentEnds) threshold = thresholdConnectionFilamentEnds;
-			project.setBoundary(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), threshold, scaleX, scaleY, scaleZ);
+			project.setBoundary(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), 10), threshold, scaleX, scaleY, scaleZ);
 			project.configChanged();
 		} catch (IOException e) {
 			e.printStackTrace();

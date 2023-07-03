@@ -27,14 +27,26 @@ public class AnalyzeUtils {
 			ops.context().service(StatusService.class).showStatus("Not recalculating distance transform map of " + input.getName());
 			return;
 		}
-		calculateDistanceTransform(ops, input.getImage(), output);
+		calculateDistanceTransform(ops, input.getImage(), output, false);
 	}
 
-	public static <T extends IntegerType<T>> void calculateDistanceTransform(OpService ops, RandomAccessibleInterval<T> input, ImageFileItem<FloatType> output) throws IOException {
+	public static void calculateDistanceTransformInner(OpService ops, ImageFileItem input, ImageFileItem<FloatType> output, boolean recalculateDistanceMaps) throws IOException {
+		if(output.exists() && !recalculateDistanceMaps) {
+			ops.context().service(StatusService.class).showStatus("Not recalculating distance transform map of " + input.getName());
+			return;
+		}
+		calculateDistanceTransform(ops, input.getImage(), output, true);
+	}
+
+	public static <T extends IntegerType<T>> void calculateDistanceTransform(OpService ops, RandomAccessibleInterval<T> input, ImageFileItem<FloatType> output, boolean inverted) throws IOException {
 //		Img<FloatType> img = ops.create().img(input, new FloatType());
 //		LoopBuilder.setImages(input, img).multiThreaded().forEachPixel((in, out) -> out.set(in.getInteger() == 0? Float.MAX_VALUE : 0));
 		Img<BitType> img = ops.create().img(input, new BitType());
-		LoopBuilder.setImages(input, img).multiThreaded().forEachPixel((in, out) -> out.set(in.getInteger() == 0));
+		if(inverted) {
+			LoopBuilder.setImages(input, img).multiThreaded().forEachPixel((in, out) -> out.set(in.getInteger() != 0));
+		} else {
+			LoopBuilder.setImages(input, img).multiThreaded().forEachPixel((in, out) -> out.set(in.getInteger() == 0));
+		}
 //		DistanceTransform.transform(img, new EuclidianDistanceIsotropic(1));
 		RandomAccessibleInterval<FloatType> distance = ops.image().distancetransform(img);
 		output.setImage(distance);
