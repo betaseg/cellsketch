@@ -9,6 +9,7 @@ import de.frauzufall.cellsketch.model.LabelMapItemGroup;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,8 +24,7 @@ public class IntegrationTest {
 
 		Context context = new Context();
 		context.service(UIService.class).showUI();
-//		File projectDir = Files.createTempDirectory("project").toFile();
-		File projectDir = new File("/home/deschmi/Development/album/collabs/betaseg/bla");
+		File projectDir = Files.createTempDirectory("project").toFile();
 		CellProject project = new CellProject(projectDir, "myproject", context);
 		String input = getClass().getResource("/example-project/sections-180-220.tif").getFile();
 		String mitochondria = getClass().getResource("/example-project/mitochondria.tif").getFile();
@@ -36,10 +36,8 @@ public class IntegrationTest {
 		assertEquals(3, project.getItems().size());
 		project.saveConfig();
 		project.unload();
-		project.run();
-		while(true){
+//		project.run();
 
-		}
 //
 //		new CellAnalyzer(project, false, context.service(OpService.class), 0.02).analyze();
 //		assertEquals(3, labelmapitem.getLabelMap().getTagItems().size());
