@@ -1,0 +1,57 @@
+name: Create Release
+
+on:
+  push:
+    paths:
+      - 'pom.xml'
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get previous version
+        id: get-previous-version
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const previousVersion = releases[0].tag_name;
+            return previousVersion;
+
+      - name: Extract current version
+        id: extract-version
+        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+
+      - name: Check version and create release
+        id: create-release
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const currentVersion = "${{ steps.extract-version.outputs.version }}";
+            const previousVersion = "${{ steps.get-previous-version.outputs.result }}";
+            if (currentVersion !== previousVersion) {
+              const { data: release } = await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: currentVersion,
+                name: "Release " + currentVersion,
+                draft: false,
+                prerelease: false,
+              });
+              return release;
+            }
+            else {
+              console.log("Version did not change. No release created.");
+              return;
+            }
