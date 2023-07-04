@@ -39,12 +39,15 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const { data: releases } = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const previousVersion = releases.length > 0 ? releases[0].tag_name : "0.0.0";
-            return previousVersion;
+            const getPreviousVersion = async () => {
+              const { data: releases } = await github.rest.repos.listReleases({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const previousVersion = releases.length > 0 ? releases[0].tag_name : "0.0.0";
+              return previousVersion;
+            }
+            return getPreviousVersion();
 
       - name: Check version and create release
         id: create-release
@@ -55,17 +58,21 @@ jobs:
             const semver = require("semver");
             const currentVersion = "${{ steps.extract-version.outputs.version }}";
             const previousVersion = "${{ steps.get-previous-version.outputs.result }}";
-            if (semver.valid(currentVersion) && semver.valid(previousVersion) && semver.gt(currentVersion, previousVersion)) {
-              const { data: release } = await github.rest.repos.createRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag_name: currentVersion,
-                name: "Release " + currentVersion,
-                draft: false,
-                prerelease: false,
-              });
-              return release;
+            const createRelease = async () => {
+              if (semver.valid(currentVersion) && semver.valid(previousVersion) && semver.gt(currentVersion, previousVersion)) {
+                const { data: release } = await github.rest.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: currentVersion,
+                  name: "Release " + currentVersion,
+                  draft: false,
+                  prerelease: false,
+                });
+                return release;
+              }
+              else {
+                console.log("Version did not change or it's not in the correct format. No release created.");
+                return;
+              }
             }
-            else {
-              console.log("Version did not change or it's not in the correct format. No release created.");
-              return;
+            return createRelease();
