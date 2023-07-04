@@ -45,6 +45,9 @@ public class LabelMapAnalyzer {
 			for (MaskItemGroup item : project.getMaskItems()) {
 				analyzeLabelMapDistanceRelation(item);
 			}
+			if(project.getBoundary() != null) {
+				analyzeLabelMapDistanceRelation(project.getBoundary());
+			}
 //			exportMasks();
 		} else {
 			project.context().service(StatusService.class).showStatus("Cannot analyze labels, label map not found.");

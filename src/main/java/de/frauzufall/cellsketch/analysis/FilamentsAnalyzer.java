@@ -80,6 +80,9 @@ public class FilamentsAnalyzer {
         for (LabelMapItemGroup item : data.getLabelMapItems()) {
             calculateDistanceMapRelationship(mts, detailsTable, item, pixelToMicroMeters);
         }
+        if(data.getBoundary() != null) {
+            calculateDistanceMapRelationship(mts, detailsTable, data.getBoundary(), pixelToMicroMeters);
+        }
         this.item.getOverallStats().setFile(sumTableFile);
         this.item.getOverallStats().save();
         this.item.getIndividualStats().setFile(individualTableFile);
