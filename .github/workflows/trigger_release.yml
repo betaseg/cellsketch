@@ -15,6 +15,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'adopt'
+
+      - name: Extract current version
+        id: extract-version
+        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install semver
+        run: npm install semver
+
       - name: Get previous version
         id: get-previous-version
         uses: actions/github-script@v5
@@ -28,19 +46,16 @@ jobs:
             const previousVersion = releases.length > 0 ? releases[0].tag_name : "0.0.0";
             return previousVersion;
 
-      - name: Extract current version
-        id: extract-version
-        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
-
       - name: Check version and create release
         id: create-release
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const semver = require("semver");
             const currentVersion = "${{ steps.extract-version.outputs.version }}";
             const previousVersion = "${{ steps.get-previous-version.outputs.result }}";
-            if (currentVersion !== previousVersion) {
+            if (semver.valid(currentVersion) && semver.valid(previousVersion) && semver.gt(currentVersion, previousVersion)) {
               const { data: release } = await github.rest.repos.createRelease({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -52,6 +67,5 @@ jobs:
               return release;
             }
             else {
-              console.log("Version did not change. No release created.");
+              console.log("Version did not change or it's not in the correct format. No release created.");
               return;
-            }
