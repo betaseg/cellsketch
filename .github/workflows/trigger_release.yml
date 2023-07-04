@@ -1,78 +1,25 @@
-name: Create Release
-
-on:
-  push:
-    paths:
-      - 'pom.xml'
-    branches:
-      - main
-
 jobs:
   build:
-    name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - name: Checkout project
+        uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
         with:
-          java-version: 11
-          distribution: 'adopt'
-
-      - name: Extract current version
-        id: extract-version
-        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
-
-      - name: Install Node.js
-        uses: actions/setup-node@v2
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.2
         with:
-          node-version: '14'
-
-      - name: Install semver
-        run: npm install semver
-
-      - name: Get previous version
-        id: get-previous-version
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const getPreviousVersion = async () => {
-              const { data: releases } = await github.rest.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              const previousVersion = releases.length > 0 ? releases[0].tag_name : "0.0.0";
-              return previousVersion;
-            }
-            return getPreviousVersion();
-
-      - name: Check version and create release
-        id: create-release
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const semver = require("semver");
-            const currentVersion = "${{ steps.extract-version.outputs.version }}";
-            const previousVersion = "${{ steps.get-previous-version.outputs.result }}";
-            const createRelease = async () => {
-              if (semver.valid(currentVersion) && semver.valid(previousVersion) && semver.gt(currentVersion, previousVersion)) {
-                const { data: release } = await github.rest.repos.createRelease({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  tag_name: currentVersion,
-                  name: "Release " + currentVersion,
-                  draft: false,
-                  prerelease: false,
-                });
-                return release;
-              }
-              else {
-                console.log("Version did not change or it's not in the correct format. No release created.");
-                return;
-              }
-            }
-            return createRelease();
+          java-version: 14
+          server-id: github
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+      - name: Publish JAR
+        run: ./mvnw -B release:prepare release:perform
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

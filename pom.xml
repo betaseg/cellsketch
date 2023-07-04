@@ -80,6 +80,7 @@
 		<license.copyrightOwners>Deborah Schmidt</license.copyrightOwners>
 		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
 		<bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
+		<git.repository>betaseg/cellsketch</git.repository>
 	</properties>
 
 	<repositories>
@@ -95,10 +96,23 @@
 	<distributionManagement>
 		<repository>
 			<id>github</id>
-			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/betaseg/cellsketch</url>
+			<name>GitHub</name>
+			<url>https://maven.pkg.github.com/${git.repository}</url>
 		</repository>
 	</distributionManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 		<dependency>
