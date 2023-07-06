@@ -69,7 +69,7 @@ Now you can run the solution:
 ```
 album run io.github.betaseg:cellsketch-pixel-view:0.1.0 --project MY_PROJECT.n5
 ```
-![The CellSketch Viewer](doc/cellsketch-import.png)
+![The CellSketch Viewer](doc/cellsketch-import-mito.png)
 
 This will open BigDataViewer and initially always only display the source dataset. The view supports arbitrary rotations in 3D. Hover over the right part of the display - an arrow on the right border will appear. Click on it to show the sidebar of the viewer. After importing other cell components, they can be loaded and displayed by clicking on the eye symbols.
 
@@ -91,7 +91,7 @@ Run the solution:
 album run io.github.betaseg:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
 ```
 
-![The CellSketch Viewer showing analysis results](doc/cellsketch-mesh-view.png)
+![The CellSketch Viewer showing analysis results](doc/cellsketch-mesh-view-mito.png)
 
 ### Import meshes into Blender
 
@@ -114,7 +114,7 @@ Run the following command:
 ```
 album run io.github.betaseg:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend
 ```
-![Rendering CellSketch meshes in Blender](doc/cellsketch-mesh-blender.png)
+![Rendering CellSketch meshes in Blender](doc/cellsketch-mesh-render-mito.png)
 
 The color of the material of each object can be changed in the `Shading` section in the lower part of the user interface.
 Adjustments to the rendering can be done after selecting the `Rendering` workspace in the top center area. Select `Cycles` in the right area as Render Engine for enhanced material rendering. GPU devices can be configured by clicking `Preferences > System > Cycles Render Devices`.
@@ -127,4 +127,4 @@ album run io.github.betaseg:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.bl
 ```
 
 
-![Rendering result](doc/cell_h1.png)
+![Rendering result](doc/cell_h1_mitochondria.png)
