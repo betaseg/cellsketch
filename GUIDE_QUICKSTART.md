@@ -25,23 +25,23 @@ conda activate album
 ### Add the Helmholtz Imaging Development Catalog
 
 ```
-album add-catalog https://gitlab.com/album-app/catalogs/helmholtz-imaging
+album add-catalog https://github.com/betaseg/solutions
 ```
 
 ### Install CellSketch solutions
 
 Install these CellSketch solutions by running the following commands:
 ```
-album install de.mdc-berlin:cellsketch-create:0.1.0
-album install de.mdc-berlin:cellsketch-add-mask:0.1.0
-album install de.mdc-berlin:cellsketch-mesh-export:0.1.0
-album install de.mdc-berlin:cellsketch-mesh-render:0.1.0
-album install de.mdc-berlin:launch-blender:0.1.0
+album install io.github.betaseg:cellsketch-create-project:0.1.0
+album install io.github.betaseg:cellsketch-add-mask:0.1.0
+album install io.github.betaseg:cellsketch-mesh-export:0.1.0
+album install io.github.betaseg:cellsketch-to-blender:0.1.0
+album install io.github.betaseg:launch-blender:0.1.0
 ```
 
 ### Creating a CellSketch project
 ```
-album run de.mdc-berlin:cellsketch-create:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --headless True
+album run io.github.betaseg:cellsketch-create-project:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --headless True
 ```
 
 Parameters:
@@ -55,7 +55,7 @@ A new folder `MY_PARENT_FOLDER/MY_PROJECT.n5` will be created. Please don't rena
 
 ### Add masks to the project
 ```
-album run de.mdc-berlin:cellsketch-add-mask:0.1.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria**
+album run io.github.betaseg:cellsketch-add-mask:0.1.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria**
 ```
 Provide your `MY_PROJECT.n5` directory from the previous step as the project input parameter and the mask you want to add as input, together with a representative name.
 
@@ -63,11 +63,11 @@ Provide your `MY_PROJECT.n5` directory from the previous step as the project inp
 
 Install the following solution:
 ```
-album install de.mdc-berlin:cellsketch-view:0.1.0
+album install io.github.betaseg:cellsketch-pixel-view:0.1.0
 ```
 Now you can run the solution:
 ```
-album run de.mdc-berlin:cellsketch-view:0.1.0 --project MY_PROJECT.n5
+album run io.github.betaseg:cellsketch-pixel-view:0.1.0 --project MY_PROJECT.n5
 ```
 ![The CellSketch Viewer](doc/cellsketch-import.png)
 
@@ -78,17 +78,17 @@ This will open BigDataViewer and initially always only display the source datase
 In order to render a cell in 3D, tools like Blender need mesh representations of your data. You can convert all or a subset of your masks and labels of your CellSketch project into meshes with one solution.
 
 ```
-album run de.mdc-berlin:cellsketch-mesh-export:0.1.0 --project MY_PROJECT.n5 --headless True
+album run io.github.betaseg:cellsketch-mesh-export:0.1.0 --project MY_PROJECT.n5 --headless True
 ```
 
 ### (Optional) Displaying meshes in VTK
 Install the following solution:
 ```
-album install de.mdc-berlin:cellsketch-mesh-view:0.1.0
+album install io.github.betaseg:cellsketch-mesh-view:0.1.0
 ```
 Run the solution:
 ```
-album run de.mdc-berlin:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
+album run io.github.betaseg:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
 ```
 
 ![The CellSketch Viewer showing analysis results](doc/cellsketch-mesh-view.png)
@@ -98,7 +98,7 @@ album run de.mdc-berlin:cellsketch-mesh-view:0.1.0 --project MY_PROJECT.n5
 All exported meshes can automatically be imported into Blender with the assigned colors to render them with advanced texture and lighting simulations. 
 
 ```
-album run de.mdc-berlin:cellsketch-mesh-render:0.1.0 --project MY_PROJECT.n5 --output_blend MY_PROJECT.blend --headless True
+album run io.github.betaseg:cellsketch-to-blender:0.1.0 --project MY_PROJECT.n5 --output_blend MY_PROJECT.blend --headless True
 ```
 
 Parameters:
@@ -112,7 +112,7 @@ You can now open the Blender project stored at `output_blend` with Blender - eit
 
 Run the following command:
 ```
-album run de.mdc-berlin:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend
+album run io.github.betaseg:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend
 ```
 ![Rendering CellSketch meshes in Blender](doc/cellsketch-mesh-blender.png)
 
@@ -123,7 +123,7 @@ Click `Render > Render image` in the top menu to render the cell.
 
 Alternatively, render the image via command line without displaying the Blender GUI with this call:
 ```
-album run de.mdc-berlin:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend --output_rendering PATH_TO_OUTPUT_IMAGE
+album run io.github.betaseg:launch-blender:0.1.0 --input PATH_TO_OUTPUT_BLEND.blend --output_rendering PATH_TO_OUTPUT_IMAGE
 ```
 
 
