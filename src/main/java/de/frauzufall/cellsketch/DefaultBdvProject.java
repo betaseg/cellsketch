@@ -346,6 +346,7 @@ public class DefaultBdvProject extends DefaultItemGroup implements BdvProject {
 
 	@Override
 	public void deleteFileItem(FileItem fileItem) throws IOException {
+		System.out.println("Deleting file " + fileItem.getFile());
 		if(fileItem.exists()) {
 			fileItem.unload();
 			if(fileItem.getFile().isDirectory()) {

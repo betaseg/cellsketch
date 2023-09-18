@@ -118,7 +118,7 @@ public class LabelMapFileItem<T extends IntegerType<T>> extends ImageFileItem<T>
 		for (LabelTagItem tagItem : tagItems) {
 			if(tagItem.getReferenceTable().getDefaultFileName().equals(referenceTable.getDefaultFileName())
 					&& tagItem.getReferenceColumnName().equals(columnName)) {
-				System.out.println("Tag " + title + " already exists for labling " + this.getName());
+//				System.out.println("Tag " + title + " already exists for labling " + this.getName());
 				return tagItem;
 			}
 		}
