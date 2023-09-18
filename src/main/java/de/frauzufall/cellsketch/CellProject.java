@@ -1,5 +1,6 @@
 package de.frauzufall.cellsketch;
 
+import com.google.gson.JsonSyntaxException;
 import de.frauzufall.cellsketch.analysis.FilamentsImporter;
 import de.frauzufall.cellsketch.analysis.NMLReader;
 import de.frauzufall.cellsketch.model.*;
@@ -112,11 +113,23 @@ public class CellProject extends DefaultBdvProject {
 	}
 
 	private void loadCellBounds(N5Reader reader) throws IOException {
-		Map<String, String> cellBounds = reader.getAttribute(File.separator, configKeyCellBounds, HashMap.class);
-		if(cellBounds != null) {
-			for (Map.Entry<String, String> entry : cellBounds.entrySet()) {
-				String name = entry.getKey();
-				String path = entry.getValue();
+		try {
+			Map<String, String> cellBounds = reader.getAttribute(File.separator, configKeyCellBounds, HashMap.class);
+			if(cellBounds != null) {
+				for (Map.Entry<String, String> entry : cellBounds.entrySet()) {
+					String name = entry.getKey();
+					String path = fixSeparator(entry.getValue());
+					MaskItemGroup group = new MaskItemGroup(this, name, path);
+					group.loadConfig();
+					getItems().add(group);
+					this.cellBoundsItem = group;
+				}
+			}
+		} catch(JsonSyntaxException e) {
+			String cellBounds = reader.getAttribute(File.separator, configKeyCellBounds, String.class);
+			if(cellBounds != null) {
+				String name = cellBounds;
+				String path = getName() + "_" + toFileName(name);
 				MaskItemGroup group = new MaskItemGroup(this, name, path);
 				group.loadConfig();
 				getItems().add(group);
