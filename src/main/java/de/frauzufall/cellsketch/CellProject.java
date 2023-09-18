@@ -71,12 +71,16 @@ public class CellProject extends DefaultBdvProject {
 			for (Map.Entry<String, String> entry : masks.entrySet()) {
 				String name = entry.getKey();
 				String path = entry.getValue();
-				MaskItemGroup group = new MaskItemGroup(this, name, path);
+				MaskItemGroup group = new MaskItemGroup(this, name, fixSeparator(path));
 				group.loadConfig();
 				getItems().add(group);
 				maskItems.add(group);
 			}
 		}
+	}
+
+	private String fixSeparator(String name) {
+		return name.replace("/", File.separator).replace("\\", File.separator);
 	}
 
 	private void loadLabelMaps(N5Reader reader) throws IOException {
@@ -85,7 +89,7 @@ public class CellProject extends DefaultBdvProject {
 			for (Map.Entry<String, String> entry : labelmaps.entrySet()) {
 				String name = entry.getKey();
 				String path = entry.getValue();
-				LabelMapItemGroup group = new LabelMapItemGroup(this, name, path);
+				LabelMapItemGroup group = new LabelMapItemGroup(this, name, fixSeparator(path));
 				group.loadConfig();
 				getItems().add(group);
 				labelMapItems.add(group);
@@ -98,7 +102,7 @@ public class CellProject extends DefaultBdvProject {
 		if(filaments != null) {
 			for (Map.Entry<String, String> entry : filaments.entrySet()) {
 				String name = entry.getKey();
-				String path = entry.getValue();
+				String path = fixSeparator(entry.getValue());
 				FilamentsItemGroup group = new FilamentsItemGroup(this, name, path + ".yml", path);
 				group.loadConfig();
 				getItems().add(group);
@@ -260,7 +264,7 @@ public class CellProject extends DefaultBdvProject {
 	}
 
 	private String toFileName(String name) {
-		return name.toLowerCase(Locale.ROOT).replace(" ", "_");
+		return fixSeparator(name).toLowerCase(Locale.ROOT).replace(" ", "_");
 	}
 
 	public MaskItemGroup getBoundary() {
