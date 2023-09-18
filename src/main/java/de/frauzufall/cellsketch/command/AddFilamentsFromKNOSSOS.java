@@ -25,6 +25,14 @@ public class AddFilamentsFromKNOSSOS extends CommandColoredEntity {
 	@Option(name = "--radius")
 	private double radius = 0.025/2.;
 
+	@Parameter(label = "Fix offset in Z if filament file has different dimension specs as source image file", required = false)
+	@Option(name = "--fixOffset")
+	private boolean fixOffset = true;
+
+	@Parameter(label = "Find lines which were labeled from both sides and connect them.", required = false)
+	@Option(name = "--fixLineOrder")
+	private boolean fixLineOrder = false;
+
 	@Parameter(label = "Filaments KNOSSOS file", required = false)
 	@Option(name = "--input")
 	private File input;
@@ -38,7 +46,7 @@ public class AddFilamentsFromKNOSSOS extends CommandColoredEntity {
 		String progressName = "Adding filaments from " + input;
 		try {
 			project.startProgress(progressName);
-			project.addFilamentsFromKNOSSOS(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), scaleX, scaleY, scaleZ, radius);
+			project.addFilamentsFromKNOSSOS(input, name, ARGBType.rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()), scaleX, scaleY, scaleZ, radius, fixOffset, fixLineOrder);
 			project.configChanged();
 		} catch (IOException | NMLReader.NMLReaderIOException | DataConversionException e) {
 			e.printStackTrace();

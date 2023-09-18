@@ -40,9 +40,11 @@ public class FilamentsImporter {
             File knossosInput,
             double scaleX,
             double scaleY,
-            double scaleZ) throws DataConversionException, IOException, NMLReader.NMLReaderIOException {
+            double scaleZ,
+            boolean fixZOffset,
+            boolean fixLineOrder) throws DataConversionException, IOException, NMLReader.NMLReaderIOException {
         FileItem filamentsYaml = getFilamentsYamlItem();
-        fix(project.getSourceItem().getImage(), knossosInput, new File(project.getProjectDir().getAbsolutePath(), filamentsYaml.getDefaultFileName()), scaleX, scaleY, scaleZ);
+        fix(project.getSourceItem().getImage(), knossosInput, new File(project.getProjectDir().getAbsolutePath(), filamentsYaml.getDefaultFileName()), scaleX, scaleY, scaleZ, fixZOffset, fixLineOrder);
     }
 
     private FileItem getFilamentsYamlItem() {
@@ -64,22 +66,26 @@ public class FilamentsImporter {
     }
 
 
-    private static List<List<Pair<Point, Point>>> fix(RandomAccessibleInterval original, File input, File output, double scaleX, double scaleY, double scaleZ) throws DataConversionException, NMLReader.NMLReaderIOException, JSONException, IOException {
+    private static List<List<Pair<Point, Point>>> fix(RandomAccessibleInterval original, File input, File output, double scaleX, double scaleY, double scaleZ, boolean fixZOffset, boolean fixLineOrder) throws DataConversionException, NMLReader.NMLReaderIOException, JSONException, IOException {
         double[] scaleFactors = new double[]{scaleX, scaleY, scaleZ};
         long[] dimensions = NMLReader.getDimensions(input, scaleFactors);
         long offset = 0;
-        if (dimensions[0] != original.dimension(0) || dimensions[1] != original.dimension(1)) {
-            System.out.println("Original does not match MT dimensions");
-        } else {
-            if (dimensions[2] != original.dimension(2)) {
-                offset = original.dimension(2) - dimensions[2];
-                System.out.println("Filaments have offset of " + offset);
+        if(fixZOffset) {
+            if (dimensions[0] != original.dimension(0) || dimensions[1] != original.dimension(1)) {
+                System.out.println("Original does not match MT dimensions");
+            } else {
+                if (dimensions[2] != original.dimension(2)) {
+                    offset = original.dimension(2) - dimensions[2];
+                    System.out.println("Filaments have offset of " + offset);
+                }
             }
         }
         List<List<Pair<Point, Point>>> fixedPoints = NMLReader.toPoints(input, scaleFactors);
         System.out.println("MT count from KNOSSOS:" + fixedPoints.size());
-        fixedPoints = FilamentsImporter.correctLineOrder(fixedPoints, 1.5f);
-        System.out.println("MT count reordered:" + fixedPoints.size());
+        if(fixLineOrder) {
+            fixedPoints = FilamentsImporter.correctLineOrder(fixedPoints, 1.5f);
+            System.out.println("MT count reordered:" + fixedPoints.size());
+        }
         JSONArray lines = new JSONArray();
         for (int i = 0; i < fixedPoints.size(); i++) {
             JSONArray points = new JSONArray();
