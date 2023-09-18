@@ -35,14 +35,14 @@ public class CellAnalyzer {
             for (MaskItemGroup maskItemGroup : project.getMaskItems()) {
                 calculateDistanceTransform(maskItemGroup);
             }
+            if(project.getBoundary() != null) {
+                calculateDistanceTransformInner(project.getBoundary());
+            }
             for (FilamentsItemGroup filamentsItemGroup : project.getFilamentsItems()) {
                 analyzeFilaments(project.getPixelToUM(), filamentsItemGroup);
             }
             for (LabelMapItemGroup labelMapItemGroup : project.getLabelMapItems()) {
                 analyzeLabelMaps(labelMapItemGroup);
-            }
-            if(project.getBoundary() != null) {
-                calculateDistanceTransformInner(project.getBoundary());
             }
             project.populateModel();
             project.updateUI();
