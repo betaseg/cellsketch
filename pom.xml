@@ -11,7 +11,7 @@
 
 	<groupId>de.frauzufall</groupId>
 	<artifactId>cellsketch</artifactId>
-	<version>0.2.3-SNAPSHOT</version>
+	<version>0.2.4-SNAPSHOT</version>
 
 	<name>cellsketch</name>
 	<description>cellsketch</description>
