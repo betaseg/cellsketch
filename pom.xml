@@ -11,7 +11,7 @@
 
 	<groupId>de.frauzufall</groupId>
 	<artifactId>cellsketch</artifactId>
-	<version>0.2.3-SNAPSHOT</version>
+	<version>0.2.3</version>
 
 	<name>cellsketch</name>
 	<description>cellsketch</description>
@@ -61,7 +61,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/betaseg/cellsketch</connection>
 		<developerConnection>scm:git:git@github.com/betaseg/cellsketch</developerConnection>
-		<tag>HEAD</tag>
+		<tag>cellsketch-0.2.3</tag>
 		<url>https://github.com/betaseg/cellsketch</url>
 	</scm>
 	<issueManagement>
