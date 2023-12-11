@@ -31,9 +31,9 @@ Via GUI, when running a solution which is not installed yet, it will ask you to 
 
 Via commandline install all CellSketch solutions by running the following commands:
 ```
-album install io.github.betaseg:cellsketch-create-project:0.1.0
-album install io.github.betaseg:cellsketch-pixel-view:0.1.0
-album install io.github.betaseg:cellsketch-analyze:0.1.0
+album install io.github.betaseg:cellsketch-create-project:0.2.1
+album install io.github.betaseg:cellsketch-pixel-view:0.2.0
+album install io.github.betaseg:cellsketch-analyze:0.2.0
 album install io.github.betaseg:cellsketch-plot:0.1.0
 album install io.github.betaseg:cellsketch-mesh-export:0.1.0
 album install io.github.betaseg:cellsketch-mesh-view:0.1.0
@@ -59,7 +59,7 @@ In the GUI, after launching Album use the search bar or scroll through your list
 
 Alternatively, run the solution via commandline:
 ```
-album run io.github.betaseg:cellsketch-create-project:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --scale_z 1.5
+album run io.github.betaseg:cellsketch-create-project:0.2.1 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --scale_z 1.5
 ```
 
 Creating a new CellSketch project requires the following parameters:
@@ -81,7 +81,7 @@ Via GUI you can display your CellSketch project by using the search bar or scrol
 
 Alternatively, run the following command from the commandline:
 ```
-album run io.github.betaseg:cellsketch-pixel-view:0.1.0 --project MY_PROJECT.n5
+album run io.github.betaseg:cellsketch-pixel-view:0.2.0 --project MY_PROJECT.n5
 ```
 Provide the newly created `MY_PROJECT.n5` directory from the previous step as the project input parameter.
 
@@ -117,7 +117,7 @@ Run spatial analysis for your CellSketch project via GUI by using the search bar
 
 Alternatively, run the following command from the commandline (exemplary parameter values):
 ```
-album run io.github.betaseg:cellsketch-analyze:0.1.0 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
+album run io.github.betaseg:cellsketch-analyze:0.2.0 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
 ```
 
 Mandatory parameters:
