@@ -32,8 +32,8 @@ album add-catalog https://github.com/betaseg/solutions
 
 Install these CellSketch solutions by running the following commands:
 ```
-album install io.github.betaseg:cellsketch-create-project:0.1.0
-album install io.github.betaseg:cellsketch-add-mask:0.1.0
+album install io.github.betaseg:cellsketch-create-project:0.2.1
+album install io.github.betaseg:cellsketch-add-mask:0.2.0
 album install io.github.betaseg:cellsketch-mesh-export:0.1.0
 album install io.github.betaseg:cellsketch-to-blender:0.1.0
 album install io.github.betaseg:launch-blender:0.1.0
@@ -41,7 +41,7 @@ album install io.github.betaseg:launch-blender:0.1.0
 
 ### Creating a CellSketch project
 ```
-album run io.github.betaseg:cellsketch-create-project:0.1.0 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --headless True
+album run io.github.betaseg:cellsketch-create-project:0.2.1 --parent MY_PARENT_FOLDER --name MY_PROJECT --input MY_RAW_DATASET.tif --pixel_to_um 0.016 --headless True
 ```
 
 Parameters:
@@ -55,7 +55,7 @@ A new folder `MY_PARENT_FOLDER/MY_PROJECT.n5` will be created. Please don't rena
 
 ### Add masks to the project
 ```
-album run io.github.betaseg:cellsketch-add-mask:0.1.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria
+album run io.github.betaseg:cellsketch-add-mask:0.2.0 --project MY_PROJECT.n5 --input MY_MASK.tif --name mitochondria
 ```
 Provide your `MY_PROJECT.n5` directory from the previous step as the project input parameter and the mask you want to add as input, together with a representative name.
 
