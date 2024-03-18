@@ -33,7 +33,7 @@ Via commandline install all CellSketch solutions by running the following comman
 ```
 album install io.github.betaseg:cellsketch-create-project:0.2.2
 album install io.github.betaseg:cellsketch-pixel-view:0.2.1
-album install io.github.betaseg:cellsketch-analyze:0.2.1
+album install io.github.betaseg:cellsketch-analyze:0.2.2
 album install io.github.betaseg:cellsketch-plot:0.1.0
 album install io.github.betaseg:cellsketch-mesh-export:0.1.0
 album install io.github.betaseg:cellsketch-mesh-view:0.1.0
@@ -117,7 +117,7 @@ Run spatial analysis for your CellSketch project via GUI by using the search bar
 
 Alternatively, run the following command from the commandline (exemplary parameter values):
 ```
-album run io.github.betaseg:cellsketch-analyze:0.2.1 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
+album run io.github.betaseg:cellsketch-analyze:0.2.2 --project MY_PROJECT.n5 --connected_threshold_in_um 0.02 --skip_existing_distance_maps True
 ```
 
 Mandatory parameters:
